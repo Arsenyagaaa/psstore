@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>PS Plus</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0b1f; --card:#12162f; --text:#fff; --muted:#8d93b9;
+  --green:#52e5a3; --yellow:#ffd35c;
+  --display:'Unbounded','Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{
+  max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom));
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+
+/* ---------- Hero ---------- */
+.hero{
+  position:relative;overflow:hidden;padding:20px 20px 0;
+  background:linear-gradient(180deg,#2b0d6e 0%,#5a1aa0 28%,#b92f9c 60%,#ff5f86 82%,#ff8f78 100%);
+}
+.hero-home{min-height:335px}
+.hero-tier{min-height:300px}
+.hero-top{display:flex;align-items:center;gap:12px;position:relative;z-index:2}
+.pill{
+  border:1.5px solid var(--yellow);color:var(--yellow);border-radius:999px;
+  padding:6px 14px;font-weight:800;letter-spacing:.08em;font-size:13px;white-space:nowrap
+}
+.hero-sub{font-size:14px;font-weight:600;color:#f3e9ff}
+.back{
+  width:34px;height:34px;border-radius:50%;background:rgba(10,4,32,.45);
+  color:#fff;font-size:22px;line-height:32px;text-align:center;flex:none
+}
+h1{
+  font-family:var(--display);font-weight:800;font-size:31px;line-height:1.12;
+  margin-top:18px;position:relative;z-index:2;max-width:78%
+}
+h1 em{font-style:normal;color:var(--yellow)}
+.tier-title{font-size:44px;max-width:100%}
+.tagline{
+  position:relative;z-index:2;margin-top:10px;font-size:17px;font-weight:700;
+  line-height:1.3;max-width:62%;color:#fff
+}
+.hero-art{position:absolute;left:0;bottom:0;width:100%;height:auto;display:block;pointer-events:none;z-index:1}
+
+/* ---------- Home: tiers ---------- */
+.tiers{padding:16px 16px 0;display:grid;gap:12px}
+.tier{
+  width:100%;background:var(--card);border-radius:20px;padding:16px 16px 14px 20px;
+  box-shadow:inset 5px 0 0 var(--c);position:relative
+}
+.tier-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tier-name{font-family:var(--display);font-weight:800;font-size:22px;color:var(--c)}
+.tier-desc{font-size:13px;color:var(--muted);margin-top:4px;font-weight:600}
+.chev{font-size:26px;color:var(--muted);line-height:1}
+.tier-prices{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:8px;margin-top:14px}
+.tp{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tp-l{font-size:12px;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.tp.best .tp-l{color:var(--green)}
+.badge{background:var(--green);color:#06210f;border-radius:6px;padding:1px 5px;font-size:9px;font-weight:800;letter-spacing:.02em}
+.tp-p{font-family:var(--display);font-weight:800;font-size:15px;white-space:nowrap}
+.tp.best .tp-p{color:var(--c)}
+.tp-s{font-size:11px;color:var(--green);font-weight:700}
+.tp-s.base{color:var(--muted)}
+.note{margin:14px 20px 0;font-size:12px;color:var(--muted);line-height:1.4}
+.contact{
+  display:block;margin:18px 16px 0;width:calc(100% - 32px);background:#ffd35c;color:#0a0b1f;
+  border-radius:20px;padding:16px 18px;font-weight:800;font-size:15px
+}
+.contact small{display:block;font-size:12px;font-weight:700;opacity:.7;margin-top:3px}
+
+/* ---------- Tier page ---------- */
+.card{background:var(--card);border-radius:22px;padding:20px}
+.features{list-style:none;display:grid;gap:14px;margin:16px 16px 0}
+.features li{display:flex;gap:12px;align-items:center;font-size:15.5px;font-weight:600;line-height:1.3}
+.features svg{flex:none;width:24px;height:24px}
+.periods{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:10px;margin:14px 16px 0}
+.period{
+  background:var(--card);border:2px solid transparent;border-radius:18px;padding:14px 12px;min-width:0;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start
+}
+.period.sel{border-color:var(--c)}
+.pl{font-size:12px;color:var(--muted);font-weight:700;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.period.sel .pl{color:var(--c)}
+.pp{font-family:var(--display);font-weight:800;font-size:18px;margin-top:6px;white-space:nowrap}
+.period.sel .pp{color:var(--c)}
+.ps{font-size:11px;font-weight:700;color:var(--green);margin-top:5px;line-height:1.3}
+.ps.base{color:var(--muted)}
+.why{
+  margin:14px 16px 0;border:1.5px dashed var(--c);border-radius:20px;padding:16px;
+  background:rgba(255,255,255,.02)
+}
+.why h4{color:var(--c);font-size:12px;letter-spacing:.07em;font-weight:800}
+.why p{margin-top:8px;font-size:15px;line-height:1.45;font-weight:600}
+.cta{
+  position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));
+  margin:16px 16px 0;width:calc(100% - 32px);border-radius:20px;padding:16px 18px;
+  background:var(--c);color:#0a0b1f;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:5
+}
+.cta b{font-family:var(--display);font-weight:800;font-size:17px;display:block}
+.cta small{font-size:12px;font-weight:800;opacity:.75;display:block;margin-top:5px}
+.cta .go{font-weight:800;font-size:15px;white-space:nowrap}
+.cta:active,.tier:active,.period:active,.contact:active{transform:scale(.985)}
+
+#toast{
+  position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);opacity:0;
+  background:#222849;color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:700;
+  max-width:88%;text-align:center;transition:.25s;pointer-events:none;z-index:20
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.err{padding:60px 24px;text-align:center;color:var(--muted);font-weight:600}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="sunG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe27a"/>
+      <stop offset="1" stop-color="#ff8f8f"/>
+    </linearGradient>
+    <symbol id="palm" viewBox="-12 -14 132 190">
+      <g fill="#0a0420" stroke="#0a0420" stroke-linecap="round">
+        <path d="M50 176 Q 44 100 52 42" fill="none" stroke-width="6"/>
+        <path d="M52 42 Q 20 8 -8 36 Q 24 26 52 42 Z" stroke-width="1"/>
+        <path d="M52 42 Q 22 32 2 68 Q 30 46 52 42 Z" stroke-width="1"/>
+        <path d="M52 42 Q 84 8 112 36 Q 80 26 52 42 Z" stroke-width="1"/>
+        <path d="M52 42 Q 82 32 102 68 Q 74 46 52 42 Z" stroke-width="1"/>
+        <path d="M52 42 Q 44 14 60 -10 Q 58 22 52 42 Z" stroke-width="1"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+(() => {
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const app = document.getElementById('app');
+  const state = { view: 'home', tierId: null, periodId: null };
+  let catalog = null;
+
+  /* ---------- helpers ---------- */
+  const esc = s => String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+  const money = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + catalog.currency;
+  const tierPeriods = t => catalog.periods.filter(p => t.prices[p.id] != null);
+  const saving = (t, p) => {
+    const base = t.prices['1m'];
+    if (!base || p.months === 1) return 0;
+    return Math.round((1 - t.prices[p.id] / (base * p.months)) * 100);
+  };
+  const perMonth = (t, p) => Math.round(t.prices[p.id] / p.months);
+  const bestPeriod = t => { const ps = tierPeriods(t); return ps[ps.length - 1]; };
+  const rnd = seed => { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; };
+  const haptic = kind => { try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {} };
+
+  function toast(text) {
+    const el = document.getElementById('toast');
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  /* ---------- illustration ---------- */
+  function figure(x, y, c, pad, pony) {
+    return `<g transform="translate(${x} ${y})" stroke="${c}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" fill="#0a0420">
+      <rect x="-15" y="-36" width="11" height="40" rx="5.5"/>
+      <rect x="4" y="-36" width="11" height="40" rx="5.5"/>
+      ${pony ? '<path d="M11 -100 q 22 -6 15 22 q -3 -13 -13 -13 z"/>' : ''}
+      <circle cx="0" cy="-92" r="15"/>
+      <rect x="-24" y="-76" width="48" height="46" rx="15"/>
+      <rect x="-13" y="-52" width="26" height="10" rx="5" fill="${pad}" stroke="none"/>
+    </g>`;
+  }
+
+  function heroSvg(h, opt) {
+    const W = 400, r = rnd(opt.seed || 7);
+    const cols = ['#2fd4ff', '#ffd35c', '#ff5aa8'];
+    let stars = '', bld = '', win = '', x = 0;
+    for (let i = 0; i < 16; i++) {
+      stars += `<circle cx="${Math.floor(r() * W)}" cy="${Math.floor(r() * h * 0.45)}" r="${(0.8 + r() * 0.8).toFixed(1)}" fill="#fff" opacity="${(0.4 + r() * 0.5).toFixed(2)}"/>`;
+    }
+    while (x < W) {
+      const w = 26 + Math.floor(r() * 30);
+      const centre = Math.abs(x + w / 2 - opt.sunX) / 200;
+      const f = Math.min(1, 0.42 + centre * 0.9);
+      const bh = Math.round((34 + r() * 50) * f);
+      bld += `<rect x="${x}" y="${h - bh}" width="${w}" height="${bh}" fill="#150840"/>`;
+      const n = 1 + Math.floor(r() * 3);
+      for (let i = 0; i < n; i++) {
+        win += `<rect x="${x + 4 + Math.floor(r() * (w - 12))}" y="${h - bh + 6 + Math.floor(r() * Math.max(1, bh - 16))}" width="4" height="4" fill="${cols[Math.floor(r() * 3)]}"/>`;
+      }
+      x += w;
+    }
+    const palms = (opt.palms || []).map(p =>
+      `<use href="#palm" ${p.flip ? `transform="translate(${W} 0) scale(-1 1)"` : ''} x="${p.x}" y="${h - p.h + 6}" width="${Math.round(p.h * 0.7)}" height="${p.h}"/>`
+    ).join('');
+    const figs = (opt.figs || []).map(f => figure(f.x, h + 4, f.c, f.pad, f.pony)).join('');
+    return `<svg class="hero-art" viewBox="0 0 ${W} ${h}" aria-hidden="true">
+      ${stars}
+      <circle cx="${opt.sunX}" cy="${h - 4}" r="${opt.sunR}" fill="url(#sunG)"/>
+      ${bld}${win}${palms}${figs}
+    </svg>`;
+  }
+
+  /* ---------- views ---------- */
+  function renderHome() {
+    const art = heroSvg(250, {
+      seed: 11, sunX: 200, sunR: 82,
+      palms: [{ x: -22, h: 150 }, { x: -22, h: 150, flip: true }],
+      figs: [
+        { x: 112, c: '#ff4fa3', pad: '#2fd4ff' },
+        { x: 288, c: '#2fd4ff', pad: '#ff4fa3', pony: true }
+      ]
+    });
+    const cards = catalog.tiers.map(t => {
+      const ps = tierPeriods(t), best = bestPeriod(t);
+      const cols = ps.map(p => {
+        const s = saving(t, p);
+        return `<div class="tp ${p === best ? 'best' : ''}">
+          <span class="tp-l">${esc(p.short)}${p === best ? '<b class="badge">ВЫГОДНО</b>' : ''}</span>
+          <span class="tp-p">${money(t.prices[p.id])}</span>
+          <span class="tp-s ${s ? '' : 'base'}">${s ? 'выгода ' + s + '%' : 'базовая цена'}</span>
+        </div>`;
+      }).join('');
+      return `<button class="tier" data-tier="${esc(t.id)}" style="--c:${esc(t.color)}">
+        <div class="tier-head">
+          <div><div class="tier-name">${esc(t.title)}</div><div class="tier-desc">${esc(t.short)}</div></div>
+          <span class="chev">›</span>
+        </div>
+        <div class="tier-prices" style="--n:${ps.length}">${cols}</div>
+      </button>`;
+    }).join('');
+    const contact = catalog.contact
+      ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
+    app.innerHTML = `
+      <section class="hero hero-home">
+        <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
+        <h1>Выбери свой <em>тариф</em> и играй</h1>
+        ${art}
+      </section>
+      <main>
+        <div class="tiers">${cards}</div>
+        ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
+        ${contact}
+      </main>`;
+  }
+
+  function renderTier() {
+    const idx = catalog.tiers.findIndex(t => t.id === state.tierId);
+    const t = catalog.tiers[idx];
+    if (!t) { state.view = 'home'; return renderHome(); }
+    const ps = tierPeriods(t);
+    if (!ps.find(p => p.id === state.periodId)) state.periodId = bestPeriod(t).id;
+    const sel = ps.find(p => p.id === state.periodId);
+
+    const figKinds = t.figures || ['boy'];
+    const figs = figKinds.length === 1
+      ? [{ x: 318, c: t.color, pad: t.color, pony: figKinds[0] === 'girl' }]
+      : [{ x: 268, c: t.color, pad: t.color }, { x: 340, c: t.color, pad: t.color, pony: true }];
+    const art = heroSvg(200, {
+      seed: 3 + idx, sunX: figKinds.length === 1 ? 318 : 304, sunR: 66,
+      palms: [{ x: 168, h: 130 }, { x: 4, h: 118, flip: true }],
+      figs
+    });
+    const check = `<svg viewBox="0 0 24 24" fill="none" stroke="${esc(t.color)}" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const feats = t.features.map(f => `<li>${check}<span>${esc(f)}</span></li>`).join('');
+    const periods = ps.map(p => {
+      const s = saving(t, p), best = p === bestPeriod(t) && ps.length > 1;
+      const sub = s ? `выгода ${s}%${p.months >= 12 ? ' · ≈' + perMonth(t, p) + ' ₽/мес' : ''}` : 'базовая цена';
+      return `<button class="period ${p.id === state.periodId ? 'sel' : ''}" data-period="${esc(p.id)}">
+        <span class="pl">${esc(p.short)}${best ? '<b class="badge">ВЫГОДНО</b>' : ''}</span>
+        <div class="pp">${money(t.prices[p.id])}</div>
+        <div class="ps ${s ? '' : 'base'}">${sub}</div>
+      </button>`;
+    }).join('');
+
+    app.innerHTML = `
+      <section class="hero hero-tier" style="--c:${esc(t.color)}">
+        <div class="hero-top">
+          <button class="back" data-back aria-label="Назад">‹</button>
+          <span class="pill">PS PLUS</span>
+          <span class="hero-sub">Тариф ${idx + 1} из ${catalog.tiers.length}</span>
+        </div>
+        <h1 class="tier-title" style="color:${esc(t.color)}">${esc(t.title)}</h1>
+        <p class="tagline">${esc(t.tagline)}</p>
+        ${art}
+      </section>
+      <main style="--c:${esc(t.color)}">
+        <ul class="features card">${feats}</ul>
+        <div class="periods" style="--n:${ps.length}">${periods}</div>
+        <div class="why"><h4>ПОЧЕМУ СТОИТ ВЗЯТЬ</h4><p>${esc(t.why)}</p></div>
+        <button class="cta" data-order>
+          <div><b>Заказать ${esc(t.title)}</b><small>${esc(sel.title)} · ${money(t.prices[sel.id])}</small></div>
+          <span class="go">Дальше →</span>
+        </button>
+      </main>`;
+  }
+
+  function render() {
+    const y = window.scrollY;
+    state.view === 'home' ? renderHome() : renderTier();
+    window.scrollTo(0, y);
+    if (tg && tg.BackButton) { state.view === 'home' ? tg.BackButton.hide() : tg.BackButton.show(); }
+  }
+
+  function go(view, tierId) {
+    state.view = view; state.tierId = tierId || null; state.periodId = null;
+    app.innerHTML = '';
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- order ---------- */
+  function order() {
+    const t = catalog.tiers.find(x => x.id === state.tierId);
+    if (!t) return;
+    const payload = JSON.stringify({ tier: t.id, period: state.periodId });
+    if (tg && tg.initData) {
+      try {
+        tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
+        tg.sendData(payload);
+      } catch (e) {
+        toast('Откройте магазин кнопкой «Открыть магазин» в чате с ботом');
+      }
+    } else {
+      toast('Демо-режим: заявка отправляется только из Telegram');
+    }
+  }
+
+  /* ---------- events ---------- */
+  app.addEventListener('click', e => {
+    const el = e.target.closest('[data-tier],[data-period],[data-order],[data-back],[data-contact]');
+    if (!el) return;
+    if (el.dataset.tier) { haptic(); go('tier', el.dataset.tier); }
+    else if (el.dataset.period) { haptic(); state.periodId = el.dataset.period; render(); }
+    else if ('order' in el.dataset) order();
+    else if ('back' in el.dataset) go('home');
+    else if ('contact' in el.dataset) {
+      const url = 'https://t.me/' + catalog.contact;
+      tg && tg.openTelegramLink ? tg.openTelegramLink(url) : window.open(url, '_blank');
+    }
+  });
+
+  /* ---------- start ---------- */
+  async function loadCatalog() {
+    if (window.__CATALOG__) return window.__CATALOG__;
+    const r = await fetch('catalog.json?v=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }
+
+  (async () => {
+    if (tg) {
+      try {
+        tg.ready(); tg.expand();
+        tg.setHeaderColor('#2b0d6e'); tg.setBackgroundColor('#0a0b1f');
+        tg.BackButton.onClick(() => go('home'));
+      } catch (e) {}
+    }
+    try {
+      catalog = await loadCatalog();
+      render();
+    } catch (e) {
+      app.innerHTML = '<div class="err">Не удалось загрузить каталог.<br>Попробуйте открыть магазин ещё раз.</div>';
+    }
+  })();
+})();
+</script>
+</body>
+</html>
