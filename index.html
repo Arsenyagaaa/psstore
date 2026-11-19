@@ -330,7 +330,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     const t = catalog.tiers.find(x => x.id === state.tierId);
     if (!t) return;
     const payload = JSON.stringify({ tier: t.id, period: state.periodId });
-    if (tg && tg.initData) {
+    if (tg && tg.platform && tg.platform !== 'unknown') {
       try {
         tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
         tg.sendData(payload);
