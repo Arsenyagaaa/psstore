@@ -331,10 +331,9 @@ h1 em{font-style:normal;color:var(--yellow)}
     if (!t) return;
     const p = catalog.periods.find(x => x.id === state.periodId);
     if (!p || t.prices[p.id] == null) return;
-    if (!catalog.contact) { toast('Не указан контакт менеджера'); return; }
-    // Заказ уходит сообщением менеджеру: так он работает при любом способе запуска магазина
-    const text = 'Здравствуйте! Хочу заказать PS Plus ' + t.title + ', ' + p.title + ' — ' + money(t.prices[p.id]);
-    const url = 'https://t.me/' + catalog.contact + '?text=' + encodeURIComponent(text);
+    // Заказ уходит боту ссылкой /start o_<тариф>_<срок>: бот сразу уведомляет менеджера
+    const botName = catalog.bot || 'psstore_Arsenyaga_bot';
+    const url = 'https://t.me/' + botName + '?start=o_' + t.id + '_' + p.id;
     try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
     if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
     else window.open(url, '_blank');
