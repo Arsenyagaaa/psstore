@@ -329,17 +329,15 @@ h1 em{font-style:normal;color:var(--yellow)}
   function order() {
     const t = catalog.tiers.find(x => x.id === state.tierId);
     if (!t) return;
-    const payload = JSON.stringify({ tier: t.id, period: state.periodId });
-    if (tg && tg.platform && tg.platform !== 'unknown') {
-      try {
-        tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success');
-        tg.sendData(payload);
-      } catch (e) {
-        toast('Откройте магазин кнопкой «Открыть магазин» в чате с ботом');
-      }
-    } else {
-      toast('Демо-режим: заявка отправляется только из Telegram');
-    }
+    const p = catalog.periods.find(x => x.id === state.periodId);
+    if (!p || t.prices[p.id] == null) return;
+    if (!catalog.contact) { toast('Не указан контакт менеджера'); return; }
+    // Заказ уходит сообщением менеджеру: так он работает при любом способе запуска магазина
+    const text = 'Здравствуйте! Хочу заказать PS Plus ' + t.title + ', ' + p.title + ' — ' + money(t.prices[p.id]);
+    const url = 'https://t.me/' + catalog.contact + '?text=' + encodeURIComponent(text);
+    try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(url);
+    else window.open(url, '_blank');
   }
 
   /* ---------- events ---------- */
