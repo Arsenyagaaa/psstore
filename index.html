@@ -169,6 +169,42 @@ h1 em{font-style:normal;color:var(--yellow)}
 .ord{background:var(--card);border-radius:18px;padding:14px 16px;display:grid;gap:6px;font-size:14px;font-weight:600}
 .ord-h{display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;font-weight:700}
 .ord-t{font-weight:800;color:var(--yellow)}
+.car{padding-top:14px}
+.car-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.car-track::-webkit-scrollbar{display:none}
+.slide,.gcard{position:relative;display:block;overflow:hidden;text-align:left;color:#fff;background:linear-gradient(160deg,var(--b),var(--a))}
+.slide{flex:0 0 90%;height:300px;border-radius:26px;scroll-snap-align:center}
+.gcard{width:100%;aspect-ratio:3/4;border-radius:22px}
+.slide-art{position:absolute;inset:0}
+.slide-art svg{width:100%;height:100%;display:block}
+.slide-txt,.gtxt{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(6,7,24,.92),rgba(6,7,24,0))}
+.slide-txt{padding:48px 18px 18px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.slide-tag{position:absolute;top:16px;left:18px;font-size:11.5px;font-weight:800;letter-spacing:.08em;background:rgba(6,7,24,.5);border-radius:999px;padding:6px 12px}
+.slide h2{font-family:var(--display);font-weight:800;font-size:30px;line-height:1.05}
+.slide small{display:block;margin-top:6px;font-size:16px;font-weight:800;color:var(--yellow)}
+.slide-go{background:var(--yellow);color:#0a0b1f;font-weight:800;font-size:14px;padding:12px 16px;border-radius:14px;white-space:nowrap}
+.dots{display:flex;justify-content:center;gap:6px;padding:12px 0 0}
+.dot{width:8px;height:8px;border-radius:4px;background:#2b3160;transition:all .25s}
+.dot.on{width:26px;background:var(--yellow)}
+.sec-h{font-family:var(--display);font-weight:800;font-size:18px;margin:22px 20px 0}
+.games{padding:12px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gw{position:relative}
+.gw .fav{position:absolute;top:10px;right:10px}
+.gtxt{padding:36px 14px 12px}
+.gtitle{font-family:var(--display);font-weight:800;font-size:17px}
+.gprice{margin-top:4px;font-size:14px;font-weight:800;color:var(--yellow)}
+.tier-w{position:relative}
+.tier-w .fav{position:absolute;top:12px;right:44px}
+.tier-w .tier-head>div:first-child{padding-right:78px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 16px 0}
+.lead-card{margin:16px 16px 0}
+.chip{background:var(--card);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700}
+.gal{margin:16px 16px 0;display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.gal::-webkit-scrollbar{display:none}
+.gal img{flex:0 0 86%;aspect-ratio:16/9;object-fit:cover;border-radius:18px;scroll-snap-align:center;background:var(--card)}
+.lead{line-height:1.5;font-weight:600;font-size:15px}
+.hero-game{min-height:300px;background:linear-gradient(160deg,var(--b),var(--a))}
+.hero-game .tier-title,.hero-game .tagline{position:relative;z-index:2}
 .ck{background:var(--card);border-radius:20px;padding:16px 18px;display:grid;gap:10px}
 .ck h3{font-size:15px;font-weight:800}
 .ck-row{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:600;color:var(--muted)}
@@ -233,7 +269,7 @@ h1 em{font-style:normal;color:var(--yellow)}
 (() => {
   const tg = window.Telegram && window.Telegram.WebApp;
   const app = document.getElementById('app');
-  const state = { view: 'home', tab: 'home', tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' } };
+  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' } };
   const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,20}$/;
   let catalog = null;
   let cart = [], favs = [], orders = [];
@@ -311,14 +347,27 @@ h1 em{font-style:normal;color:var(--yellow)}
 
   /* ---------- cart helpers ---------- */
   const tierOf = id => catalog.tiers.find(t => t.id === id);
+  const gameOf = id => (catalog.games || []).find(g => g.id === id);
+  const itemOf = id => tierOf(id) || gameOf(id);
   const periodOf = id => catalog.periods.find(p => p.id === id);
-  const priceOf = i => { const t = tierOf(i.t); return t && t.prices[i.p] != null ? t.prices[i.p] : null; };
+  const priceOf = i => {
+    const g = gameOf(i.t);
+    if (g) return i.p === 'g' ? g.price : null;
+    const t = tierOf(i.t);
+    return t && t.prices[i.p] != null ? t.prices[i.p] : null;
+  };
+  const lineTitle = i => itemOf(i.t).title;
+  const lineShort = i => (gameOf(i.t) ? 'Игра' : periodOf(i.p).short);
+  const lineLong = i => (gameOf(i.t) ? 'Игра' : periodOf(i.p).title);
+  const HEART = '<svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"/></svg>';
+  const favBtn = id => `<button class="fav ${favs.includes(id) ? 'on' : ''}" data-fav="${esc(id)}" aria-label="В избранное">${HEART}</button>`;
   const cartCount = () => cart.reduce((n, i) => n + i.q, 0);
   const cartTotal = () => cart.reduce((n, i) => n + priceOf(i) * i.q, 0);
   const saveCart = () => { store.set('ps_cart', cart); updateTabs(); };
   const saveFavs = () => store.set('ps_fav', favs);
 
   function addToCart(tierId, periodId) {
+    if (gameOf(tierId)) periodId = 'g';
     const line = cart.find(i => i.t === tierId && i.p === periodId);
     if (line) {
       if (line.q >= MAX_QTY) return toast('Можно не больше ' + MAX_QTY + ' штук одного тарифа');
@@ -329,8 +378,8 @@ h1 em{font-style:normal;color:var(--yellow)}
     }
     saveCart();
     try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    const t = tierOf(tierId), p = periodOf(periodId);
-    toast(t.title + ' · ' + p.short + ' добавлен в корзину');
+    const probe = { t: tierId, p: periodId };
+    toast(lineTitle(probe) + ' · ' + lineShort(probe) + ' добавлен в корзину');
     render();
   }
 
@@ -351,13 +400,93 @@ h1 em{font-style:normal;color:var(--yellow)}
         <span class="tp-s ${s ? '' : 'base'}">${s ? 'выгода ' + s + '%' : 'базовая цена'}</span>
       </div>`;
     }).join('');
-    return `<button class="tier" data-tier="${esc(t.id)}" style="--c:${esc(t.color)}">
+    return `<div class="tier-w"><button class="tier" data-tier="${esc(t.id)}" style="--c:${esc(t.color)}">
       <div class="tier-head">
         <div><div class="tier-name">${esc(t.title)}</div><div class="tier-desc">${esc(t.short)}</div></div>
         <span class="chev">›</span>
       </div>
       <div class="tier-prices" style="--n:${ps.length}">${cols}</div>
+    </button>${favBtn(t.id)}</div>`;
+  }
+
+  /* ---------- games ---------- */
+  let artN = 0;
+  function gameArt(g) {
+    const n = ++artN, c = esc(g.color);
+    if (g.art === 'pitch') {
+      return `<svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs><radialGradient id="gl${n}" cx=".5" cy=".3" r=".75"><stop offset="0" stop-color="${c}" stop-opacity=".55"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs>
+        <rect width="360" height="300" fill="url(#gl${n})"/>
+        <g fill="none" stroke="${c}" stroke-opacity=".38" stroke-width="2">
+          <circle cx="180" cy="168" r="62"/><line x1="-10" y1="168" x2="370" y2="168"/>
+          <rect x="100" y="262" width="160" height="70"/><rect x="100" y="-32" width="160" height="70"/>
+        </g>
+        <g transform="translate(226 96) scale(.9)">
+          <circle r="40" fill="#fff"/><circle r="40" fill="none" stroke="#0a0b1f" stroke-opacity=".25" stroke-width="2"/>
+          <path d="M0 -14l13 9-5 15h-16l-5-15z" fill="#0a0b1f"/>
+          <path d="M0 -14V-40M13 -5l26-8M8 10l16 22M-8 10l-16 22M-13 -5l-26-8" stroke="#0a0b1f" stroke-width="3" fill="none"/>
+        </g>
+      </svg>`;
+    }
+    const palm = (x, flip) => `<g transform="translate(${x} 0) scale(${flip ? -1 : 1} 1)" fill="#12082e" stroke="#12082e">
+        <path d="M0 310Q10 230 30 170" fill="none" stroke-width="8" stroke-linecap="round"/>
+        <path d="M30 170q-46-6-70 26q36-30 70-26zM30 170q-18-36-58-40q36 8 58 40zM30 170q22-34 62-34q-38 6-62 34zM30 170q40 0 66 30q-30-26-66-30z" stroke="none"/>
+      </g>`;
+    const bars = [[16,150],[44,118],[70,164],[100,104],[132,140],[164,96],[196,150],[230,112],[262,160],[292,124],[322,148]]
+      .map(([x, y]) => `<rect x="${x}" y="${y + 40}" width="24" height="${300 - y}" />`).join('');
+    return `<svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><linearGradient id="sun${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd35c"/><stop offset="1" stop-color="${c}"/></linearGradient></defs>
+      <circle cx="180" cy="128" r="74" fill="url(#sun${n})"/>
+      <g fill="${esc(g.color2)}"><rect x="90" y="132" width="180" height="5"/><rect x="100" y="150" width="160" height="7"/><rect x="110" y="170" width="140" height="9"/></g>
+      <g fill="#12082e" opacity=".92">${bars}</g>
+      <rect x="0" y="296" width="360" height="20" fill="#12082e"/>
+    </svg>`;
+  }
+
+  function slideHtml(g) {
+    return `<button class="slide" data-game="${esc(g.id)}" style="--a:${esc(g.color)};--b:${esc(g.color2)}">
+      <div class="slide-art">${gameArt(g)}</div>
+      <span class="slide-tag">${esc((g.tag || 'ИГРА').toUpperCase())}</span>
+      <div class="slide-txt"><div><h2>${esc(g.title)}</h2><small>${money(g.price)}</small></div><span class="slide-go">Купить →</span></div>
     </button>`;
+  }
+
+  function gameCard(g) {
+    return `<div class="gw"><button class="gcard" data-game="${esc(g.id)}" style="--a:${esc(g.color)};--b:${esc(g.color2)}">
+      <div class="slide-art">${gameArt(g)}</div>
+      <div class="gtxt"><div class="gtitle">${esc(g.title)}</div><div class="gprice">${money(g.price)}</div></div>
+    </button>${favBtn(g.id)}</div>`;
+  }
+
+  /* ---------- carousel ---------- */
+  let carTimer = null, carPauseUntil = 0;
+  const stopCarousel = () => { if (carTimer) { clearInterval(carTimer); carTimer = null; } };
+  const slideLeft = (track, el) => Math.max(0, el.offsetLeft - (track.clientWidth - el.offsetWidth) / 2);
+  function activeSlide(track) {
+    const mid = track.scrollLeft + track.clientWidth / 2;
+    let best = 0, bd = Infinity;
+    [...track.children].forEach((s, i) => {
+      const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return best;
+  }
+  function startCarousel() {
+    const track = document.getElementById('carTrack');
+    if (!track) return;
+    const slides = [...track.children], dots = [...document.querySelectorAll('#carDots .dot')];
+    const mark = i => { state.car = i; dots.forEach((d, k) => d.classList.toggle('on', k === i)); };
+    track.scrollLeft = slideLeft(track, slides[state.car] || slides[0]);
+    mark(activeSlide(track));
+    track.addEventListener('scroll', () => mark(activeSlide(track)), { passive: true });
+    ['touchstart', 'pointerdown', 'wheel'].forEach(ev =>
+      track.addEventListener(ev, () => { carPauseUntil = Date.now() + 8000; }, { passive: true }));
+    if (slides.length < 2) return;
+    carTimer = setInterval(() => {
+      if (Date.now() < carPauseUntil || document.hidden) return;
+      const next = (activeSlide(track) + 1) % slides.length;
+      track.scrollTo({ left: slideLeft(track, slides[next]), behavior: 'smooth' });
+    }, 4500);
   }
 
   function miniHero(title) {
@@ -379,8 +508,13 @@ h1 em{font-style:normal;color:var(--yellow)}
     const cards = catalog.tiers.map(tierCard).join('');
     const contact = catalog.contact
       ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
-    app.innerHTML = `
-      <section class="hero hero-home">
+    const games = catalog.games || [];
+    const carousel = games.length
+      ? `<section class="car"><div class="car-track" id="carTrack">${games.map(slideHtml).join('')}</div>
+         <div class="dots" id="carDots">${games.map(() => '<i class="dot"></i>').join('')}</div></section>
+         <h2 class="sec-h">Игры</h2><div class="games">${games.map(gameCard).join('')}</div>` : '';
+    app.innerHTML = carousel + `
+      <section class="hero hero-home" style="${games.length ? 'margin-top:26px' : ''}">
         <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
         <h1>Выбери свой <em>тариф</em> и играй</h1>
         ${art}
@@ -390,14 +524,17 @@ h1 em{font-style:normal;color:var(--yellow)}
         ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
         ${contact}
       </main>`;
+    startCarousel();
   }
 
   function renderFav() {
-    const list = catalog.tiers.filter(t => favs.includes(t.id));
-    const body = list.length
-      ? `<div class="tiers">${list.map(tierCard).join('')}</div>`
-      : `<div class="empty"><b>Пока пусто</b>Нажмите сердечко на странице тарифа, и он появится здесь.<button class="btn" data-tab="home">Выбрать тариф</button></div>`;
-    app.innerHTML = miniHero('Избранное') + `<main>${body}</main>`;
+    const tl = catalog.tiers.filter(t => favs.includes(t.id));
+    const gl = (catalog.games || []).filter(g => favs.includes(g.id));
+    const body = (tl.length || gl.length)
+      ? (gl.length ? `<div class="games" style="padding-top:0">${gl.map(gameCard).join('')}</div>` : '')
+        + (tl.length ? `<div class="tiers">${tl.map(tierCard).join('')}</div>` : '')
+      : `<div class="empty"><b>Пока пусто</b>Нажмите сердечко на карточке игры или тарифа, и они появятся здесь.<button class="btn" data-tab="home">Перейти в магазин</button></div>`;
+    app.innerHTML = miniHero('Избранное') + `<main style="padding-top:16px">${body}</main>`;
   }
 
   function renderCart() {
@@ -406,10 +543,10 @@ h1 em{font-style:normal;color:var(--yellow)}
       return;
     }
     const lines = cart.map((i, n) => {
-      const t = tierOf(i.t), p = periodOf(i.p);
+      const t = itemOf(i.t);
       return `<div class="line" style="--c:${esc(t.color)}">
         <div class="line-top">
-          <div><div class="line-name">${esc(t.title)}</div><div class="line-sub">${esc(p.title)} · ${money(priceOf(i))} за шт.</div></div>
+          <div><div class="line-name">${esc(t.title)}</div><div class="line-sub">${esc(lineLong(i))} · ${money(priceOf(i))} за шт.</div></div>
           <div class="line-price">${money(priceOf(i) * i.q)}</div>
         </div>
         <div class="line-bot">
@@ -433,6 +570,35 @@ h1 em{font-style:normal;color:var(--yellow)}
     </main>`;
   }
 
+  function renderGame() {
+    const g = gameOf(state.tierId);
+    if (!g) { state.view = 'home'; return renderHome(); }
+    const check = `<svg viewBox="0 0 24 24" fill="none" stroke="${esc(g.color)}" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    app.innerHTML = `
+      <section class="hero hero-game" style="--a:${esc(g.color)};--b:${esc(g.color2)}">
+        <div class="slide-art">${gameArt(g)}</div>
+        <div class="hero-top">
+          <button class="back" data-back aria-label="Назад">‹</button>
+          <span class="pill">${esc((g.tag || 'ИГРА').toUpperCase())}</span>
+          <span class="hero-sub">Игра</span>
+          ${favBtn(g.id)}
+        </div>
+        <h1 class="tier-title" style="margin-top:96px;color:#fff">${esc(g.title)}</h1>
+        <p class="tagline" style="color:var(--yellow);font-weight:800;font-size:20px;margin-bottom:22px">${money(g.price)}</p>
+      </section>
+      <main style="--c:${esc(g.color)}">
+        ${(g.chips || []).length ? `<div class="chips">${g.chips.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>` : ''}
+        ${(g.images || []).length ? `<div class="gal">${g.images.map(u => `<img src="${esc(u)}" alt="${esc(g.title)}" loading="lazy">`).join('')}</div>` : ''}
+        ${g.lead ? `<div class="card lead-card"><p class="lead">${esc(g.lead)}</p></div>` : ''}
+        ${(g.points || []).length ? `<ul class="features card">${g.points.map(p => `<li>${check}<span>${esc(p)}</span></li>`).join('')}</ul>` : ''}
+        ${g.desc ? `<p class="tiny" style="margin:12px 22px 0">${esc(g.desc)}</p>` : ''}
+        <button class="cta" data-add>
+          <div><b>В корзину</b><small>${esc(g.title)} · ${money(g.price)}</small></div>
+          <span class="go">Добавить +</span>
+        </button>
+      </main>`;
+  }
+
   function canSend() {
     const kb = new URLSearchParams(location.search).get('kb') === '1';
     return kb && !!tg && typeof tg.sendData === 'function';
@@ -444,8 +610,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     if (!cart.length) { state.view = 'cart'; return renderCart(); }
     const ck = state.ck, send = canSend();
     const rows = cart.map(i => {
-      const t = tierOf(i.t), p = periodOf(i.p);
-      return `<div class="ck-row"><span>${esc(t.title)} · ${esc(p.short)}${i.q > 1 ? ' × ' + i.q : ''}</span><span>${money(priceOf(i) * i.q)}</span></div>`;
+      return `<div class="ck-row"><span>${esc(lineTitle(i))} · ${esc(lineShort(i))}${i.q > 1 ? ' × ' + i.q : ''}</span><span>${money(priceOf(i) * i.q)}</span></div>`;
     }).join('');
     const feeRow = ck.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
     const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
@@ -559,15 +724,16 @@ h1 em{font-style:normal;color:var(--yellow)}
 
   function render() {
     const y = window.scrollY;
-    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
+    stopCarousel();
+    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, game: renderGame, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
     window.scrollTo(0, y);
     updateTabs();
-    if (tg && tg.BackButton) { (state.view === 'tier' || state.view === 'checkout') ? tg.BackButton.show() : tg.BackButton.hide(); }
+    if (tg && tg.BackButton) { (state.view === 'tier' || state.view === 'checkout' || state.view === 'game') ? tg.BackButton.show() : tg.BackButton.hide(); }
   }
 
   function go(view, tierId) {
     state.view = view; state.tierId = tierId || null; state.periodId = null;
-    if (view !== 'tier' && view !== 'checkout') state.tab = view;
+    if (view !== 'tier' && view !== 'checkout' && view !== 'game') state.tab = view;
     document.getElementById('toast').classList.remove('show');
     app.innerHTML = '';
     render();
@@ -592,7 +758,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       if (url.split('start=')[1].length > 64) return toast('В корзине слишком много позиций. Оформите часть заказа отдельно');
     }
     const d = new Date(), z = n => String(n).padStart(2, '0');
-    const items = cart.map(i => ({ title: tierOf(i.t).title, period: periodOf(i.p).short, q: i.q }));
+    const items = cart.map(i => ({ title: lineTitle(i), period: gameOf(i.t) ? '' : lineShort(i), q: i.q }));
     if (ck.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total: ckTotal() });
     orders = orders.slice(0, 10);
@@ -624,16 +790,19 @@ h1 em{font-style:normal;color:var(--yellow)}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game]');
     if (!el) return;
     const d = el.dataset;
     if (d.tab) { haptic(); go(d.tab); }
     else if (d.tier) { haptic(); go('tier', d.tier); }
+    else if (d.game) { haptic(); go('game', d.game); }
     else if (d.period) { haptic(); state.periodId = d.period; render(); }
     else if ('add' in d) addToCart(state.tierId, state.periodId);
     else if (d.fav) {
       favs = favs.includes(d.fav) ? favs.filter(x => x !== d.fav) : favs.concat(d.fav);
-      saveFavs(); haptic(); render();
+      saveFavs(); haptic();
+      if (state.view === 'fav') render();
+      else document.querySelectorAll('[data-fav]').forEach(b => b.classList.toggle('on', favs.includes(b.dataset.fav)));
     }
     else if ('back' in d) go(state.tab);
     else if (d.inc != null) { const l = cart[+d.inc]; if (l && l.q < MAX_QTY) { l.q++; saveCart(); render(); } }
@@ -670,7 +839,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       catalog = await loadCatalog();
       cart = store.get('ps_cart', []).filter(i => i && priceOf(i) != null)
         .map(i => ({ t: i.t, p: i.p, q: Math.min(MAX_QTY, Math.max(1, i.q | 0)) })).slice(0, MAX_LINES);
-      favs = store.get('ps_fav', []).filter(id => tierOf(id));
+      favs = store.get('ps_fav', []).filter(id => itemOf(id));
       orders = store.get('ps_orders', []);
       state.ck.email = store.get('ps_email', '') || '';
       render();
