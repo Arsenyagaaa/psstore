@@ -235,6 +235,11 @@ h1 em{font-style:normal;color:var(--yellow)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .err{padding:60px 24px;text-align:center;color:var(--muted);font-weight:600}
 
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px 0}
+.tl{position:relative;display:block;width:100%;aspect-ratio:1/1;border-radius:22px;overflow:hidden;color:rgba(255,255,255,.88);background:linear-gradient(160deg,var(--a),var(--b))}
+.tl .ic{position:absolute;left:50%;top:42%;width:46%;transform:translate(-50%,-50%)}
+.tl span{position:absolute;left:10px;right:10px;bottom:10px;width:max-content;max-width:calc(100% - 20px);background:rgba(6,7,24,.66);color:#fff;border-radius:999px;padding:7px 12px;font-weight:800;font-size:13px;line-height:1.2}
+.tl:active{transform:scale(.985)}
 .wamt{position:relative}
 .wamt input{width:100%;background:#0a0d22;border:2px solid transparent;border-radius:16px;padding:16px 46px 16px 18px;color:#fff;font:800 28px var(--display);outline:none}
 .wamt input:focus{border-color:var(--yellow)}
@@ -471,6 +476,50 @@ h1 em{font-style:normal;color:var(--yellow)}
     </button>`;
   }
 
+
+  function walletArt() {
+    const n = ++artN;
+    return `<svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><radialGradient id="wg${n}" cx=".5" cy=".35" r=".8"><stop offset="0" stop-color="#52e5a3" stop-opacity=".55"/><stop offset="1" stop-color="#52e5a3" stop-opacity="0"/></radialGradient></defs>
+      <rect width="360" height="300" fill="url(#wg${n})"/>
+      <g fill="none" stroke="#52e5a3" stroke-opacity=".25" stroke-width="2"><circle cx="180" cy="150" r="96"/><circle cx="180" cy="150" r="136"/></g>
+      <g transform="translate(180 140)">
+        <rect x="-86" y="-52" width="172" height="112" rx="22" fill="#b8f5da"/>
+        <rect x="-86" y="-52" width="172" height="30" rx="14" fill="#8fe6c0"/>
+        <rect x="26" y="-6" width="60" height="38" rx="14" fill="#0d4a2a"/>
+        <circle cx="46" cy="13" r="7" fill="#b8f5da"/>
+      </g>
+      <g transform="translate(268 82)"><circle r="34" fill="#ffd35c"/><circle r="34" fill="none" stroke="#0a0b1f" stroke-opacity=".2" stroke-width="3"/>
+        <text y="12" text-anchor="middle" font-family="Unbounded,Manrope,sans-serif" font-weight="800" font-size="34" fill="#3a2a00">₴</text></g>
+      <g transform="translate(70 112)"><circle r="26" fill="#fff"/><circle r="26" fill="none" stroke="#0a0b1f" stroke-opacity=".2" stroke-width="3"/>
+        <text y="9" text-anchor="middle" font-family="Unbounded,Manrope,sans-serif" font-weight="800" font-size="26" fill="#0d4a2a">₽</text></g>
+    </svg>`;
+  }
+
+  function walletSlide() {
+    return `<button class="slide" data-wallet style="--a:#2fd4a0;--b:#06382b">
+      <div class="slide-art">${walletArt()}</div>
+      <span class="slide-tag">PSN · УКРАИНА</span>
+      <div class="slide-txt"><div><h2 style="font-size:26px">Пополнение кошелька</h2><small>1 ₴ = ${esc(rateStr(WCFG().rate))} ${esc(catalog.currency)}</small></div><span class="slide-go">Пополнить →</span></div>
+    </button>`;
+  }
+
+  function sectionTiles() {
+    const ico = {
+      bag: '<path d="M6 8h12l1 12H5z" fill="currentColor"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      plus: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="currentColor"/>',
+      wallet: '<path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h11a2 2 0 0 1 2 2v1.5H6.5A1 1 0 0 0 5.5 9.5V9" fill="none"/><rect x="3" y="6" width="18" height="13" rx="3" fill="currentColor"/><rect x="12" y="10" width="9.5" height="5.6" rx="2.3" fill="#0a0b1f" fill-opacity=".38"/><circle cx="16" cy="12.8" r="1.3" fill="currentColor"/>',
+      ea: '<text x="12" y="16.5" text-anchor="middle" font-family="Unbounded,Manrope,sans-serif" font-weight="800" font-size="12" fill="currentColor">EA</text>'
+    };
+    const tile = (attr, a, b, icon, label) => `<button class="tl" ${attr} style="--a:${a};--b:${b}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ico[icon]}</svg><span>${label}</span></button>`;
+    const out = [];
+    if ((catalog.games || []).length) out.push(tile('data-jump="games"', '#3aa0e8', '#0b3a63', 'bag', 'Игры'));
+    out.push(tile('data-jump="tiers"', '#e0b934', '#5c4a0c', 'plus', 'PS Plus'));
+    out.push(tile('data-wallet', '#33bd74', '#0d4a2a', 'wallet', 'Пополнение кошелька'));
+    if (catalog.tiers.some(t => t.id === 'eaplay')) out.push(tile('data-tier="eaplay"', '#e24b4b', '#4a0f0f', 'ea', 'EA Play'));
+    return `<div class="tiles">${out.join('')}</div>`;
+  }
+
   function gameCard(g) {
     return `<div class="gw"><button class="gcard" data-game="${esc(g.id)}" style="--a:${esc(g.color)};--b:${esc(g.color2)}">
       <div class="slide-art">${gameArt(g)}</div>
@@ -529,10 +578,11 @@ h1 em{font-style:normal;color:var(--yellow)}
     const contact = catalog.contact
       ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
     const games = catalog.games || [];
-    const carousel = games.length
-      ? `<section class="car"><div class="car-track" id="carTrack">${games.map(slideHtml).join('')}</div>
-         <div class="dots" id="carDots">${games.map(() => '<i class="dot"></i>').join('')}</div></section>
-         <h2 class="sec-h">Игры</h2><div class="games">${games.map(gameCard).join('')}</div>` : '';
+    const slides = games.map(slideHtml).concat(walletSlide());
+    const carousel = `<section class="car"><div class="car-track" id="carTrack">${slides.join('')}</div>
+         <div class="dots" id="carDots">${slides.map(() => '<i class="dot"></i>').join('')}</div></section>
+         ${sectionTiles()}
+         ${games.length ? `<h2 class="sec-h" id="secGames">Игры</h2><div class="games">${games.map(gameCard).join('')}</div>` : ''}`;
     app.innerHTML = carousel + `
       <section class="hero hero-home" style="${games.length ? 'margin-top:26px' : ''}">
         <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
@@ -540,8 +590,7 @@ h1 em{font-style:normal;color:var(--yellow)}
         ${art}
       </section>
       <main>
-        <button class="contact" data-wallet style="margin:0 0 14px;width:100%">Пополнение кошелька · Украина<small>${esc(walletHint())}</small></button>
-        <div class="tiers">${cards}</div>
+        <div class="tiers" id="secTiers">${cards}</div>
         ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
         ${contact}
       </main>`;
@@ -770,11 +819,11 @@ h1 em{font-style:normal;color:var(--yellow)}
     presets: catalog.uah_presets || [200, 500, 1000, 2000, 4000, 10000]
   });
   const uah = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴';
-  const rateStr = r => String(r).replace('.', ',');
+  const rateStr = r => Number(r).toFixed(2).replace('.', ',');
   const walletHint = () => '1 ₴ = ' + rateStr(WCFG().rate) + ' ' + catalog.currency + ' · от ' + uah(WCFG().min);
   const wAmount = () => { const n = parseInt(String(state.w.amount).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; };
   const wValid = () => { const c = WCFG(), n = wAmount(); return n >= c.min && n <= c.max; };
-  const wRub = () => Math.round(wAmount() * WCFG().rate);
+  const wRub = () => Math.floor((wAmount() * Math.round(WCFG().rate * 100) + 50) / 100);
   const wTotal = () => wRub() + (state.w.ua ? uaFee() : 0);
 
   function walletSummaryHtml() {
@@ -937,7 +986,7 @@ h1 em{font-style:normal;color:var(--yellow)}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-wpre],[data-wua],[data-whow],[data-wsend]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-jump],[data-wpre],[data-wua],[data-whow],[data-wsend]');
     if (!el) return;
     const d = el.dataset;
     if (d.tab) { haptic(); go(d.tab); }
@@ -960,6 +1009,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     else if ('ua' in d) { state.ck.ua = !state.ck.ua; haptic(); render(); }
     else if ('send' in d) submitOrder();
     else if ('wallet' in d) { haptic(); go('wallet'); }
+    else if (d.jump) { haptic(); const t = document.getElementById(d.jump === 'games' ? 'secGames' : 'secTiers'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     else if (d.wpre) { haptic(); state.w.amount = d.wpre; document.getElementById('wAmount').value = d.wpre; updateWalletSummary(); }
     else if ('wua' in d) { state.w.ua = !state.w.ua; haptic(); render(); }
     else if ('whow' in d) { state.w.how = !state.w.how; render(); }
