@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>PS Plus</title>
+<title>LUMO</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +20,7 @@ body{
   max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);color:var(--text);
   font-family:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
 }
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
 
@@ -573,7 +574,7 @@ h1 em{font-style:normal;color:var(--yellow)}
 
   function miniHero(title) {
     return `<section class="hero hero-mini">
-      <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
+      <div class="hero-top"><span class="pill">LUMO</span><span class="hero-sub">Подписки для PlayStation</span></div>
       <h1>${esc(title)}</h1>
     </section>`;
   }
@@ -592,7 +593,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
     app.innerHTML = `
       <section class="hero hero-top-home">
-        <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки и игры для PlayStation</span></div>
+        <div class="hero-top"><span class="pill">LUMO</span><span class="hero-sub">Подписки и игры для PlayStation</span></div>
         <h1>Всё для <em>PlayStation</em> в одном месте</h1>
         ${art}
       </section>
@@ -628,7 +629,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     });
     app.innerHTML = `
       <section class="hero hero-home">
-        <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
+        <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">LUMO</span><span class="hero-sub">Подписки для PlayStation</span></div>
         <h1>Выбери свой <em>тариф</em> и играй</h1>
         ${art}
       </section>
@@ -743,7 +744,7 @@ h1 em{font-style:normal;color:var(--yellow)}
 
     app.innerHTML = `
       <section class="hero hero-mini">
-        <div class="hero-top"><button class="back" data-ckback aria-label="Назад">‹</button><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
+        <div class="hero-top"><button class="back" data-ckback aria-label="Назад">‹</button><span class="pill">LUMO</span><span class="hero-sub">Подписки для PlayStation</span></div>
         <h1>Оформление заказа</h1>
       </section>
       <main class="page">
@@ -814,7 +815,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       <section class="hero hero-tier" style="--c:${esc(t.color)}">
         <div class="hero-top">
           <button class="back" data-back aria-label="Назад">‹</button>
-          <span class="pill">PS PLUS</span>
+          <span class="pill">LUMO</span>
           <span class="hero-sub">Тариф ${idx + 1} из ${catalog.tiers.length}</span>
           <button class="fav ${favs.includes(t.id) ? 'on' : ''}" data-fav="${esc(t.id)}" aria-label="В избранное"><svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"/></svg></button>
         </div>
@@ -1069,9 +1070,32 @@ h1 em{font-style:normal;color:var(--yellow)}
   /* ---------- start ---------- */
   async function loadCatalog() {
     if (window.__CATALOG__) return window.__CATALOG__;
-    const r = await fetch('catalog.json?v=' + Date.now(), { cache: 'no-store' });
+    const v = '?v=' + Date.now();
+    const r = await fetch('catalog.json' + v, { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
+    const cat = await r.json();
+    try {
+      const gr = await fetch('games.json' + v, { cache: 'no-store' });
+      if (gr.ok) {
+        const g = await gr.json();
+        if (g.shop_name) cat.shop_name = g.shop_name;
+        if (g.ua_account_fee != null) cat.ua_account_fee = g.ua_account_fee;
+        if (g.games) cat.games = g.games;
+        if (g.wallet) {
+          if (g.wallet.rate != null) cat.uah_rate = g.wallet.rate;
+          if (g.wallet.min != null) cat.uah_min = g.wallet.min;
+          if (g.wallet.max != null) cat.uah_max = g.wallet.max;
+        }
+      }
+    } catch (e) {}
+    try {
+      const rr = await fetch('reviews.json' + v, { cache: 'no-store' });
+      if (rr.ok) {
+        const rev = await rr.json();
+        if (Array.isArray(rev)) cat.reviews = rev;
+      }
+    } catch (e) {}
+    return cat;
   }
 
   (async () => {
