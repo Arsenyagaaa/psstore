@@ -1,0 +1,92 @@
+{
+  "shop_name": "LUMO",
+  "ps_account_fee": 150,
+  "wallet": {
+    "rate": 5,
+    "min": 200,
+    "max": 50000
+  },
+  "assets": {
+    "hero": "assets/hero_poster.png",
+    "promo": "assets/promo_banner.png",
+    "wallet": "assets/wallet_banner.png",
+    "psplus": "assets/screen_psplus.png",
+    "eaplay": "assets/screen_eaplay.png"
+  },
+  "games": [
+    {
+      "id": "fifa27",
+      "title": "EA SPORTS FC",
+      "price": 3490,
+      "tag": "PLAYSTATION",
+      "image": "assets/fc25.png",
+      "color": "#2fd4a0",
+      "color2": "#06382b",
+      "art": "pitch",
+      "chips": [
+        "PS5 / PS4",
+        "Цифровая версия"
+      ],
+      "lead": "Покупка на ваш или новый аккаунт PlayStation.",
+      "points": [
+        "Быстрое оформление через бота",
+        "Поддержка на каждом этапе"
+      ]
+    },
+    {
+      "id": "gta6",
+      "title": "Grand Theft Auto VI",
+      "price": 5990,
+      "tag": "PLAYSTATION 5",
+      "image": "assets/gta6.png",
+      "color": "#ff4fa3",
+      "color2": "#230b59",
+      "art": "sunset",
+      "chips": [
+        "PS5",
+        "Цифровая версия"
+      ],
+      "lead": "Оформление предзаказа / покупки в LUMO.",
+      "points": [
+        "Оплата в рублях",
+        "Помощь с аккаунтом PS"
+      ]
+    },
+    {
+      "id": "cod",
+      "title": "Call of Duty",
+      "price": 4490,
+      "tag": "PLAYSTATION",
+      "image": "assets/cod.png",
+      "color": "#38d6ff",
+      "color2": "#0d1b4c",
+      "art": "sunset",
+      "chips": [
+        "PS5 / PS4",
+        "Цифровая версия"
+      ],
+      "lead": "Покупка через магазин LUMO.",
+      "points": [
+        "Быстрая передача деталей в чат"
+      ]
+    },
+    {
+      "id": "sm2",
+      "title": "Marvel's Spider-Man 2",
+      "price": 4290,
+      "tag": "PLAYSTATION 5",
+      "image": "assets/sm2.png",
+      "color": "#ff5a6e",
+      "color2": "#2a091d",
+      "art": "sunset",
+      "chips": [
+        "PS5",
+        "Цифровая версия"
+      ],
+      "lead": "Покупка через магазин LUMO.",
+      "points": [
+        "Быстрая передача деталей в чат"
+      ]
+    }
+  ]
+}

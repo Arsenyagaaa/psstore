@@ -10,18 +10,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#090b1a;
-  --card:#12162e;
-  --card2:#181d3d;
+  --bg:#090617;
+  --card:#120d29;
+  --card2:#1b143c;
   --text:#ffffff;
-  --muted:#8e95bc;
-  --yellow:#ffd35c;
-  --green:#52e5a3;
-  --pink:#ff5aa8;
-  --cyan:#2fd4ff;
-  --purple:#b58cff;
-  --coral:#ff7a57;
-  --line:#242a52;
+  --muted:#a59ec9;
+  --yellow:#ffd644;
+  --green:#4ce39c;
+  --pink:#ff4fa3;
+  --cyan:#38d6ff;
+  --purple:#9d6bff;
+  --sunset-top:#1c094d;
+  --sunset-mid:#9b1d78;
+  --sunset-bot:#ff7a3d;
+  --line:#2a2052;
   --display:'Unbounded','Manrope',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -38,114 +40,115 @@ body{
 }
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
 
-/* Top header & showcase */
 .top-wrap{
-  background:linear-gradient(180deg,#251065 0%,#4e1b94 42%,#141630 100%);
-  padding:16px 16px 18px;
+  position:relative;
+  background:linear-gradient(180deg,var(--sunset-top) 0%,var(--sunset-mid) 48%,var(--sunset-bot) 82%,var(--bg) 100%);
+  padding:14px 16px 18px;
+  overflow:hidden;
+}
+.top-wrap::after{
+  content:"";
+  position:absolute;left:0;right:0;bottom:0;height:64px;pointer-events:none;
+  background:radial-gradient(circle at 50% 100%,rgba(255,214,68,.28),transparent 70%);
 }
 .brand-bar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
 }
 .brand-logo{
-  display:inline-flex;
-  align-items:center;
-  gap:10px;
-  font-family:var(--display);
-  font-weight:800;
-  font-size:20px;
-  letter-spacing:.04em;
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--display);font-weight:800;font-style:italic;
+  font-size:24px;letter-spacing:.03em;text-shadow:0 4px 18px rgba(0,0,0,.45);
 }
-.brand-mark{
-  width:34px;height:34px;border-radius:12px;
-  background:linear-gradient(135deg,var(--yellow),var(--pink));
-  color:#090b1a;
-  display:grid;place-items:center;
-  font-family:var(--display);font-weight:800;font-size:16px;
+.brand-sub{
+  font-style:normal;font-family:'Manrope',sans-serif;font-size:9.5px;
+  font-weight:800;letter-spacing:.18em;color:#f3eaff;display:block;margin-top:-2px;
 }
 .brand-pill{
-  border:1.5px solid rgba(255,211,92,.55);
-  color:var(--yellow);
-  border-radius:999px;
-  padding:5px 12px;
-  font-size:11.5px;
-  font-weight:800;
-  letter-spacing:.06em;
-  white-space:nowrap;
+  background:rgba(16,10,38,.55);border:1.5px solid rgba(255,214,68,.65);
+  color:var(--yellow);border-radius:999px;padding:6px 12px;
+  font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap;
 }
 
-/* Carousel */
-.car{margin-top:14px}
+.car{position:relative;z-index:2;margin-top:12px}
 .car-track{
   display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
   scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
 .car-track::-webkit-scrollbar{display:none}
 .slide{
-  position:relative;flex:0 0 100%;height:240px;border-radius:24px;
+  position:relative;flex:0 0 100%;height:300px;border-radius:26px;
   overflow:hidden;scroll-snap-align:center;
-  background:linear-gradient(155deg,var(--b,#251065),var(--a,#ff5aa8));
-  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg,#250d5e 0%,#a71f79 52%,#ff8438 100%);
+  border:1.5px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 32px rgba(0,0,0,.42);
+}
+.slide-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;
 }
 .slide-art{position:absolute;inset:0;pointer-events:none}
 .slide-art svg{width:100%;height:100%;display:block}
 .slide-tag{
-  position:relative;z-index:2;display:inline-block;margin:16px 0 0 16px;
-  background:rgba(9,11,26,.65);border-radius:999px;padding:6px 12px;
-  font-size:11px;font-weight:800;letter-spacing:.07em;color:var(--yellow);
+  position:relative;z-index:2;display:inline-block;margin:14px 0 0 14px;
+  background:rgba(10,7,25,.68);border:1px solid rgba(255,255,255,.16);
+  border-radius:999px;padding:6px 12px;
+  font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--yellow);
 }
 .slide-body{
   position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:42px 16px 16px;
-  background:linear-gradient(0deg,rgba(9,11,26,.94) 10%,rgba(9,11,26,0) 100%);
+  padding:52px 16px 16px;
+  background:linear-gradient(0deg,rgba(9,6,23,.94) 15%,rgba(9,6,23,.35) 68%,rgba(9,6,23,0) 100%);
   display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
 }
 .slide-body h2{
-  font-family:var(--display);font-weight:800;font-size:21px;line-height:1.15;
+  font-family:var(--display);font-weight:800;font-size:21px;line-height:1.14;
+  text-shadow:0 3px 14px rgba(0,0,0,.6);
 }
+.slide-body h2 .hl{color:var(--yellow)}
 .slide-body p{
-  margin-top:5px;font-size:13px;font-weight:600;color:#d6daf5;line-height:1.3;
+  margin-top:5px;font-size:13px;font-weight:600;color:#e9e5ff;line-height:1.3;
 }
 .slide-body small{
   display:inline-block;margin-top:6px;font-family:var(--display);
-  font-size:15px;font-weight:800;color:var(--yellow);
+  font-size:16px;font-weight:800;color:var(--yellow);
 }
 .slide-go{
-  flex:none;background:var(--yellow);color:#090b1a;
-  font-weight:800;font-size:13px;padding:11px 15px;border-radius:14px;white-space:nowrap;
+  flex:none;background:var(--yellow);color:#090617;
+  font-weight:800;font-size:13px;padding:12px 16px;border-radius:16px;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(255,214,68,.32);
 }
-.dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
-.dot{width:8px;height:8px;border-radius:4px;background:#2b3160;transition:all .25s}
+.dots{display:flex;justify-content:center;gap:6px;margin-top:11px}
+.dot{width:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.28);transition:all .25s}
 .dot.on{width:24px;background:var(--yellow)}
 
-/* PS Plus banner on Home */
 .psplus-banner{
-  margin:14px 16px 0;
+  margin:12px 16px 0;
   width:calc(100% - 32px);
-  background:linear-gradient(125deg,#172454 0%,#12162e 65%,#25144a 100%);
-  border:1px solid var(--line);
+  background:linear-gradient(125deg,#132357 0%,#14102d 62%,#2d1254 100%);
+  border:1.5px solid #2b3f7d;
   border-radius:22px;
-  padding:16px 18px;
+  padding:15px 16px;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.35);
 }
 .psplus-badge{
-  display:inline-block;font-size:11px;font-weight:800;letter-spacing:.07em;
-  color:var(--cyan);margin-bottom:4px;
+  display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.08em;
+  color:var(--cyan);margin-bottom:3px;
 }
 .psplus-banner b{
-  display:block;font-family:var(--display);font-weight:800;font-size:17px;
+  display:block;font-family:var(--display);font-weight:800;font-size:16.5px;
 }
 .psplus-banner small{
-  display:block;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--muted);
+  display:block;margin-top:4px;font-size:12.5px;font-weight:600;color:#b8b3d9;
 }
-.chev{font-size:26px;color:var(--muted);line-height:1;flex:none}
+.psplus-pill{
+  background:var(--yellow);color:#090617;font-weight:800;font-size:12.5px;
+  padding:10px 14px;border-radius:14px;white-space:nowrap;flex:none;
+}
 
-/* Section tiles */
 .sec-h{
-  font-family:var(--display);font-weight:800;font-size:17px;
-  margin:20px 16px 12px;
+  font-family:var(--display);font-weight:800;font-size:18px;
+  margin:22px 16px 12px;
 }
 .tiles{
   padding:0 16px;
@@ -154,96 +157,130 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 .tile{
   position:relative;aspect-ratio:1/1;border-radius:22px;overflow:hidden;
   background:linear-gradient(160deg,var(--a),var(--b));
-  border:1px solid rgba(255,255,255,.08);
+  border:1.5px solid rgba(255,255,255,.14);
   padding:14px;display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 10px 22px rgba(0,0,0,.35);
 }
-.tile-top{display:flex;align-items:flex-start;justify-content:space-between}
+.tile-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:2}
 .tile-ico{
-  width:42px;height:42px;border-radius:14px;
-  background:rgba(9,11,26,.45);display:grid;place-items:center;
-  font-family:var(--display);font-weight:800;font-size:15px;color:#fff;
+  width:44px;height:44px;border-radius:14px;
+  background:rgba(9,6,23,.48);border:1px solid rgba(255,255,255,.14);
+  display:grid;place-items:center;
+  font-family:var(--display);font-weight:800;font-size:16px;color:#fff;
 }
 .tile-arr{
   width:28px;height:28px;border-radius:50%;
-  background:rgba(9,11,26,.42);display:grid;place-items:center;font-size:18px;
+  background:rgba(9,6,23,.5);display:grid;place-items:center;font-size:18px;
 }
 .tile-foot{
-  background:rgba(9,11,26,.72);border-radius:16px;padding:10px 12px;
+  position:relative;z-index:2;
+  background:rgba(9,6,23,.78);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:10px 12px;
 }
 .tile-foot b{display:block;font-size:14.5px;font-weight:800}
-.tile-foot small{display:block;margin-top:2px;font-size:11.5px;font-weight:700;color:#d0d6f5}
+.tile-foot small{display:block;margin-top:2px;font-size:12px;font-weight:800;color:var(--yellow)}
 
-/* Subpage headers & lists */
 .sub-hero{
-  background:linear-gradient(180deg,#251065 0%,#12162e 100%);
-  padding:18px 16px 20px;
-  border-bottom:1px solid rgba(255,255,255,.05);
+  position:relative;
+  background:linear-gradient(180deg,#230b59 0%,#9e1d77 52%,#140e2e 100%);
+  padding:16px 16px 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
 }
-.sub-top{display:flex;align-items:center;gap:10px}
+.sub-hero-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:.34;pointer-events:none;
+}
+.sub-top{position:relative;z-index:2;display:flex;align-items:center;gap:10px}
 .back{
-  width:34px;height:34px;border-radius:50%;
-  background:rgba(9,11,26,.55);font-size:22px;line-height:32px;text-align:center;flex:none;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(9,6,23,.65);border:1px solid rgba(255,255,255,.16);
+  font-size:22px;line-height:34px;text-align:center;flex:none;
 }
-.sub-tag{font-size:12px;font-weight:800;color:var(--yellow);letter-spacing:.05em}
+.sub-tag{
+  font-size:11.5px;font-weight:800;color:var(--yellow);letter-spacing:.07em;
+  background:rgba(9,6,23,.58);padding:5px 11px;border-radius:999px;
+}
 .sub-hero h1{
+  position:relative;z-index:2;
   margin-top:14px;font-family:var(--display);font-weight:800;font-size:24px;line-height:1.15;
+  text-shadow:0 3px 14px rgba(0,0,0,.55);
 }
-.tabs-row{
-  display:flex;gap:8px;padding:14px 16px 0;
-}
+.tabs-row{display:flex;gap:8px;padding:14px 16px 0}
 .chip-btn{
-  padding:9px 15px;border-radius:999px;background:var(--card);
-  color:var(--muted);font-weight:800;font-size:13px;border:1.5px solid transparent;
+  padding:9px 16px;border-radius:999px;background:var(--card);
+  color:var(--muted);font-weight:800;font-size:13px;border:1.5px solid var(--line);
 }
 .chip-btn.on{
   background:var(--card2);color:var(--yellow);border-color:var(--yellow);
 }
 
 .page{padding:14px 16px 0;display:grid;gap:12px}
-.card{background:var(--card);border-radius:20px;padding:16px 18px;display:grid;gap:10px}
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:16px 18px;display:grid;gap:10px;
+}
 .tier-card{
-  background:var(--card);border-radius:20px;padding:16px 16px 16px 20px;
-  box-shadow:inset 5px 0 0 var(--c);display:grid;gap:12px;
+  background:linear-gradient(150deg,var(--card2),var(--card));
+  border:1.5px solid var(--line);
+  border-radius:22px;padding:16px 16px 16px 20px;
+  box-shadow:inset 6px 0 0 var(--c);display:grid;gap:12px;
 }
 .tier-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .tier-name{font-family:var(--display);font-weight:800;font-size:20px;color:var(--c)}
 .tier-short{font-size:13px;font-weight:600;color:var(--muted);margin-top:3px}
 .periods-grid{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:8px}
 .per-btn{
-  background:var(--bg);border:2px solid transparent;border-radius:14px;
+  background:var(--bg);border:2px solid var(--line);border-radius:14px;
   padding:10px 8px;display:flex;flex-direction:column;gap:4px;min-width:0;
 }
-.per-btn.sel{border-color:var(--c)}
+.per-btn.sel{border-color:var(--yellow);background:rgba(255,214,68,.08)}
 .per-btn span{font-size:11.5px;font-weight:700;color:var(--muted)}
-.per-btn b{font-family:var(--display);font-size:13.5px;font-weight:800;white-space:nowrap}
+.per-btn b{font-family:var(--display);font-size:13.5px;font-weight:800;white-space:nowrap;color:#fff}
 
 .games-grid{padding:14px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .gw{position:relative}
 .gcard{
   width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;position:relative;
   background:linear-gradient(160deg,var(--b),var(--a));display:block;
+  border:1.5px solid rgba(255,255,255,.14);box-shadow:0 10px 22px rgba(0,0,0,.35);
+}
+.gcard img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
 }
 .gtxt{
-  position:absolute;left:0;right:0;bottom:0;padding:34px 12px 12px;
-  background:linear-gradient(0deg,rgba(9,11,26,.94) 15%,rgba(9,11,26,0) 100%);
+  position:absolute;left:0;right:0;bottom:0;padding:38px 12px 12px;
+  background:linear-gradient(0deg,rgba(9,6,23,.96) 18%,rgba(9,6,23,0) 100%);
 }
-.gtitle{font-family:var(--display);font-weight:800;font-size:15px}
-.gprice{margin-top:4px;font-size:13.5px;font-weight:800;color:var(--yellow)}
+.gtitle{font-family:var(--display);font-weight:800;font-size:14.5px;line-height:1.15}
+.gprice{margin-top:5px;font-size:14px;font-weight:800;color:var(--yellow)}
 .fav{
   position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;
-  background:rgba(9,11,26,.55);display:grid;place-items:center;
+  background:rgba(9,6,23,.65);border:1px solid rgba(255,255,255,.18);
+  display:grid;place-items:center;z-index:2;
 }
 .fav svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2}
 .fav.on svg{fill:var(--pink);stroke:var(--pink)}
 
-.feat-list{list-style:none;display:grid;gap:9px;font-size:14px;font-weight:600;color:#e3e7ff}
-.feat-list li{display:flex;gap:8px;align-items:flex-start}
-.feat-list li::before{content:"•";color:var(--yellow);font-weight:800}
+.promo-card{
+  margin:14px 16px 0;
+  position:relative;overflow:hidden;border-radius:20px;
+  background:linear-gradient(110deg,#3b0d6e 0%,#c7247a 55%,#ff8438 100%);
+  border:1.5px solid rgba(255,214,68,.35);
+  padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.promo-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.38}
+.promo-card > div{position:relative;z-index:2}
+.promo-card b{display:block;font-family:var(--display);font-size:15px}
+.promo-card span{display:inline-block;margin-top:4px;font-family:var(--display);font-size:20px;color:var(--yellow)}
 
-/* Wallet screen */
+.feat-list{list-style:none;display:grid;gap:9px;font-size:14px;font-weight:600;color:#ebe8ff}
+.feat-list li{display:flex;gap:8px;align-items:flex-start}
+.feat-list li::before{content:"✓";color:var(--yellow);font-weight:800}
+
 .wamt{position:relative;width:100%}
 .wamt input{
-  width:100%;background:var(--bg);border:2px solid transparent;border-radius:16px;
+  width:100%;background:var(--bg);border:2px solid var(--line);border-radius:16px;
   padding:15px 44px 15px 16px;color:#fff;font:800 24px var(--display);outline:none;
 }
 .wamt input:focus{border-color:var(--yellow)}
@@ -254,20 +291,21 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 }
 .wpre{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .wp{
-  background:var(--bg);border-radius:12px;padding:11px 6px;
+  background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:11px 6px;
   font-weight:800;font-size:13px;text-align:center;color:#fff;
 }
-.wp.on{background:var(--yellow);color:#090b1a}
+.wp.on{background:var(--yellow);color:#090617;border-color:var(--yellow)}
 .chk{
   display:flex;gap:12px;align-items:center;width:100%;
-  background:var(--card);border-radius:18px;padding:15px 16px;
+  background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:15px 16px;
   font-weight:700;font-size:14.5px;line-height:1.35;
 }
 .box{
-  width:24px;height:24px;border-radius:8px;border:2px solid #4c538a;flex:none;
+  width:24px;height:24px;border-radius:8px;border:2px solid #60578c;flex:none;
   display:grid;place-items:center;
 }
-.chk.on .box{background:var(--yellow);border-color:var(--yellow);color:#090b1a;font-weight:800}
+.chk.on{border-color:rgba(255,214,68,.5)}
+.chk.on .box{background:var(--yellow);border-color:var(--yellow);color:#090617;font-weight:800}
 
 .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;font-weight:600;color:var(--muted)}
 .row span:last-child{color:#fff;white-space:nowrap}
@@ -279,7 +317,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
 .field{display:grid;gap:7px;font-size:13px;font-weight:700;color:var(--muted)}
 .field input,.field textarea{
-  width:100%;background:var(--bg);color:#fff;border:2px solid transparent;
+  width:100%;background:var(--bg);color:#fff;border:2px solid var(--line);
   border-radius:14px;padding:13px;font:inherit;font-size:15px;font-weight:600;outline:none;resize:none;
 }
 .field input:focus,.field textarea:focus{border-color:var(--yellow)}
@@ -288,17 +326,18 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
 .cta{
   width:100%;border-radius:18px;padding:15px 18px;
-  background:var(--yellow);color:#090b1a;
+  background:var(--yellow);color:#090617;
   display:flex;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 8px 22px rgba(255,214,68,.25);
 }
 .cta b{display:block;font-family:var(--display);font-weight:800;font-size:15.5px}
-.cta small{display:block;margin-top:4px;font-size:12px;font-weight:800;opacity:.75}
+.cta small{display:block;margin-top:4px;font-size:12px;font-weight:800;opacity:.78}
 .cta .go{font-weight:800;font-size:14.5px;white-space:nowrap}
 .cta:active,.tile:active,.psplus-banner:active,.wp:active,.chk:active{transform:scale(.985)}
 
-/* Cart & Profile */
 .line{
-  background:var(--card);border-radius:20px;padding:14px 16px 14px 18px;
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:14px 16px 14px 18px;
   box-shadow:inset 5px 0 0 var(--c,var(--yellow));display:grid;gap:10px;
 }
 .line-top{display:flex;justify-content:space-between;gap:10px}
@@ -312,21 +351,26 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 .rm{font-size:13px;color:var(--muted);font-weight:700;padding:6px}
 .link{display:block;margin:2px auto 0;color:var(--muted);font-size:13px;font-weight:700;padding:8px;text-align:center}
 
-.me{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:20px;padding:16px}
+.me{
+  display:flex;align-items:center;gap:14px;
+  background:linear-gradient(135deg,#2d1259 0%,var(--card) 100%);
+  border:1px solid var(--line);border-radius:22px;padding:16px;
+}
 .avatar{
-  width:50px;height:50px;border-radius:50%;
-  background:linear-gradient(135deg,var(--pink),var(--purple));
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--yellow),var(--pink));
+  color:#090617;
   display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:19px;flex:none;
 }
 .menu-btn{
-  width:100%;background:var(--card);border-radius:16px;padding:14px 16px;
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
   display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:14.5px;
 }
 .sec{font-weight:800;font-size:13.5px;color:var(--muted);margin-top:4px}
-.ord{background:var(--card);border-radius:18px;padding:14px 16px;display:grid;gap:6px;font-size:13.5px;font-weight:600}
+.ord{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;gap:6px;font-size:13.5px;font-weight:600}
 .ord-h{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;font-weight:700}
 .ord-t{font-weight:800;color:var(--yellow)}
-.rev{background:var(--card);border-radius:18px;padding:14px 16px;display:grid;gap:6px}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;gap:6px}
 .rev b{font-size:14px}
 .rev small{color:var(--muted);font-size:12px;font-weight:700}
 .rev p{font-size:13.5px;line-height:1.4;font-weight:600}
@@ -334,15 +378,14 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 .empty{padding:42px 20px;text-align:center;color:var(--muted);font-weight:600;line-height:1.45}
 .empty b{display:block;color:#fff;font-family:var(--display);font-size:17px;margin-bottom:8px}
 .btn{
-  display:inline-block;margin-top:16px;background:var(--yellow);color:#090b1a;
+  display:inline-block;margin-top:16px;background:var(--yellow);color:#090617;
   border-radius:15px;padding:13px 20px;font-weight:800;font-size:14.5px;
 }
 
-/* Bottom tabbar */
 .tabbar{
   position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;
   display:grid;grid-template-columns:repeat(4,1fr);
-  background:rgba(13,16,36,.97);border-top:1px solid var(--line);
+  background:rgba(12,8,28,.96);border-top:1px solid var(--line);
   padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:30;
 }
 .tab{
@@ -360,7 +403,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
 #toast{
   position:fixed;left:50%;bottom:96px;transform:translate(-50%,16px);opacity:0;
-  background:#22284d;color:#fff;padding:11px 16px;border-radius:14px;
+  background:#221947;border:1px solid var(--line);color:#fff;padding:11px 16px;border-radius:14px;
   font-size:13.5px;font-weight:700;max-width:88%;text-align:center;
   transition:.22s;pointer-events:none;z-index:40;
 }
@@ -394,8 +437,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     catTab: 'games',
     gameId: null,
     selectedPeriod: {},
-    ck: { ua: false, email: '', comment: '' },
-    w: { amount: 200, ua: false, email: '', comment: '' }
+    ck: { psAcc: false, email: '', comment: '' },
+    w: { amount: 200, psAcc: false, email: '', comment: '' }
   };
 
   let catalog = null;
@@ -413,7 +456,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
   const cur = () => (catalog && catalog.currency) || '₽';
   const money = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + cur();
   const uahFmt = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴';
-  const uaFee = () => (catalog && catalog.ua_account_fee != null ? Number(catalog.ua_account_fee) : 80);
+  const psAccFee = () => (catalog && catalog.ps_account_fee != null ? Number(catalog.ps_account_fee) : 150);
 
   const wCfg = () => {
     const w = (catalog && catalog.wallet) || {};
@@ -438,28 +481,52 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     return kb && !!tg && typeof tg.sendData === 'function';
   }
 
-  function artSvg(kind, c1 = '#2fd4a0', c2 = '#06382b') {
+  function artSvg(kind, c1 = '#ff4fa3', c2 = '#230b59') {
     if (kind === 'pitch') {
       return `<svg viewBox="0 0 360 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <rect width="360" height="240" fill="${esc(c2)}"/>
-        <circle cx="240" cy="78" r="56" fill="${esc(c1)}" opacity=".28"/>
-        <g fill="none" stroke="${esc(c1)}" stroke-opacity=".35" stroke-width="2">
-          <circle cx="180" cy="145" r="52"/><line x1="0" y1="145" x2="360" y2="145"/>
+        <defs><linearGradient id="pitchG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#153929"/><stop offset="1" stop-color="#071912"/></linearGradient></defs>
+        <rect width="360" height="240" fill="url(#pitchG)"/>
+        <circle cx="250" cy="70" r="62" fill="${esc(c1)}" opacity=".25"/>
+        <g fill="none" stroke="#52e5a3" stroke-opacity=".28" stroke-width="2">
+          <circle cx="180" cy="150" r="54"/><line x1="0" y1="150" x2="360" y2="150"/>
         </g>
-        <circle cx="255" cy="76" r="28" fill="#fff"/>
-        <polygon points="255,63 266,71 262,84 248,84 244,71" fill="#090b1a"/>
+        <circle cx="260" cy="74" r="28" fill="#fff"/>
+        <polygon points="260,61 271,69 267,82 253,82 249,69" fill="#090617"/>
       </svg>`;
     }
     return `<svg viewBox="0 0 360 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs><linearGradient id="lumoSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd35c"/><stop offset="1" stop-color="${esc(c1)}"/></linearGradient></defs>
-      <rect width="360" height="240" fill="${esc(c2)}"/>
-      <circle cx="245" cy="92" r="58" fill="url(#lumoSun)"/>
-      <g fill="#0c0724" opacity=".9">
-        <rect x="180" y="135" width="22" height="105"/><rect x="208" y="112" width="26" height="128"/>
-        <rect x="240" y="146" width="20" height="94"/><rect x="266" y="122" width="24" height="118"/>
-        <rect x="296" y="140" width="28" height="100"/>
+      <defs>
+        <linearGradient id="lumoSunset" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#220958"/>
+          <stop offset="0.55" stop-color="#b51e7a"/>
+          <stop offset="1" stop-color="#ff8038"/>
+        </linearGradient>
+      </defs>
+      <rect width="360" height="240" fill="url(#lumoSunset)"/>
+      <circle cx="242" cy="116" r="54" fill="#ffd644" opacity=".9"/>
+      <g fill="#0c0621">
+        <rect x="172" y="138" width="22" height="102"/><rect x="200" y="114" width="26" height="126"/>
+        <rect x="233" y="146" width="20" height="94"/><rect x="259" y="122" width="24" height="118"/>
+        <rect x="290" y="140" width="30" height="100"/>
+      </g>
+      <g stroke="#0c0621" stroke-width="3" fill="none" stroke-linecap="round">
+        <path d="M42 220 C44 150 40 105 32 68"/>
+        <path d="M32 68 Q12 64 4 82 M32 68 Q16 52 8 44 M32 68 Q46 50 62 46 M32 68 Q52 66 64 84"/>
+        <path d="M324 220 C322 156 326 112 334 76"/>
+        <path d="M334 76 Q314 72 306 88 M334 76 Q318 60 310 52 M334 76 Q348 58 358 56 M334 76 Q348 76 358 90"/>
       </g>
     </svg>`;
+  }
+
+  function visualMedia(imgPath, kind, c1, c2, cls = '') {
+    if (!imgPath) {
+      return `<div class="${cls || 'slide-art'}">${artSvg(kind, c1, c2)}</div>`;
+    }
+    const safeSrc = esc(imgPath);
+    const fallbackKind = esc(kind || 'sunset');
+    const fc1 = esc(c1 || '#ff4fa3');
+    const fc2 = esc(c2 || '#230b59');
+    return `<img src="${safeSrc}" alt="" loading="lazy" class="slide-img" onerror="this.outerHTML='<div class=\'slide-art\'>' + (function(){ if('${fallbackKind}'==='pitch') return '<svg viewBox=\'0 0 360 240\' preserveAspectRatio=\'xMidYMid slice\'><rect width=\'360\' height=\'240\' fill=\'#0c291d\'/><circle cx=\'250\' cy=\'72\' r=\'54\' fill=\'${fc1}\' opacity=\'.28\'/></svg>'; return '<svg viewBox=\'0 0 360 240\' preserveAspectRatio=\'xMidYMid slice\'><defs><linearGradient id=\'fbG\' x1=\'0\' y1=\'0\' x2=\'0\' y2=\'1\'><stop offset=\'0\' stop-color=\'${fc2}\'/><stop offset=\'1\' stop-color=\'${fc1}\'/></linearGradient></defs><rect width=\'360\' height=\'240\' fill=\'url(#fbG)\'/></svg>'; })() + '</div>'">`;
   }
 
   const tierOf = id => (catalog.tiers || []).find(t => t.id === id);
@@ -520,7 +587,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     badge.hidden = !n;
   }
 
-  /* Carousel */
   let carTimer = null, carPauseUntil = 0;
   function stopCarousel() { if (carTimer) { clearInterval(carTimer); carTimer = null; } }
   function startCarousel() {
@@ -560,14 +626,16 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     const games = catalog.games || [];
     const fifa = games.find(g => g.id === 'fifa27') || games[0];
     const gta = games.find(g => g.id === 'gta6') || games[1];
+    const heroImg = (catalog.assets && catalog.assets.hero) || 'assets/hero_poster.png';
+
     const slides = [
-      `<div class="slide" style="--a:var(--purple);--b:#241064">
-        <div class="slide-art">${artSvg('hero', '#ff5aa8', '#241064')}</div>
-        <span class="slide-tag">LUMO</span>
+      `<div class="slide" style="--a:#ff4fa3;--b:#230b59">
+        ${visualMedia(heroImg, 'sunset', '#ff7a3d', '#230b59')}
+        <span class="slide-tag">LUMO · PLAYSTATION</span>
         <div class="slide-body">
           <div>
-            <h2>Выбери свой тариф и играй</h2>
-            <p>Подписки PS Plus, EA Play, игры и пополнение кошелька</p>
+            <h2>Выбери свой <span class="hl">тариф</span> и играй</h2>
+            <p>Больше игр. Больше возможностей.</p>
           </div>
           <button class="slide-go" data-view="catalog" data-cattab="plans">Тарифы →</button>
         </div>
@@ -575,7 +643,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     ];
     if (fifa) {
       slides.push(`<div class="slide" style="--a:${esc(fifa.color || '#2fd4a0')};--b:${esc(fifa.color2 || '#06382b')}">
-        <div class="slide-art">${artSvg('pitch', fifa.color || '#2fd4a0', fifa.color2 || '#06382b')}</div>
+        ${visualMedia(fifa.image || fifa.cover, fifa.art || 'pitch', fifa.color || '#2fd4a0', fifa.color2 || '#06382b')}
         <span class="slide-tag">${esc(fifa.tag || 'PLAYSTATION')}</span>
         <div class="slide-body">
           <div>
@@ -587,8 +655,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
       </div>`);
     }
     if (gta) {
-      slides.push(`<div class="slide" style="--a:${esc(gta.color || '#ff5aa8')};--b:${esc(gta.color2 || '#2a0a4a')}">
-        <div class="slide-art">${artSvg('sunset', gta.color || '#ff5aa8', gta.color2 || '#2a0a4a')}</div>
+      slides.push(`<div class="slide" style="--a:${esc(gta.color || '#ff4fa3')};--b:${esc(gta.color2 || '#230b59')}">
+        ${visualMedia(gta.image || gta.cover, gta.art || 'sunset', gta.color || '#ff4fa3', gta.color2 || '#230b59')}
         <span class="slide-tag">${esc(gta.tag || 'PLAYSTATION 5')}</span>
         <div class="slide-body">
           <div>
@@ -610,7 +678,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     app.innerHTML = `
       <div class="top-wrap">
         <div class="brand-bar">
-          <div class="brand-logo"><span class="brand-mark">L</span><span>${esc(catalog.shop_name || 'LUMO')}</span></div>
+          <div class="brand-logo">
+            <div>
+              <span>${esc(catalog.shop_name || 'LUMO')}</span>
+              <span class="brand-sub">GAMES · DIGITAL · MORE</span>
+            </div>
+          </div>
           <span class="brand-pill">PLAYSTATION</span>
         </div>
         <section class="car">
@@ -623,26 +696,26 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
         <div>
           <span class="psplus-badge">PLAYSTATION PLUS</span>
           <b>Essential · Extra · Deluxe</b>
-          <small>${psMin ? 'Тарифы от ' + money(psMin) : 'Сравнение тарифов и сроков'}</small>
+          <small>${psMin ? 'Игры, онлайн и преимущества · от ' + money(psMin) : 'Сравнение тарифов и сроков'}</small>
         </div>
-        <span class="chev">›</span>
+        <span class="psplus-pill">Выбрать →</span>
       </button>
 
       <h2 class="sec-h">Разделы</h2>
       <div class="tiles">
-        <button class="tile" data-view="catalog" data-cattab="games" style="--a:#3a8ad0;--b:#0d3358">
+        <button class="tile" data-view="catalog" data-cattab="games" style="--a:#3e8be0;--b:#122d69">
           <div class="tile-top"><span class="tile-ico">🎮</span><span class="tile-arr">›</span></div>
           <div class="tile-foot"><b>Игры</b><small>${gameMin ? 'от ' + money(gameMin) : 'Каталог PlayStation'}</small></div>
         </button>
-        <button class="tile" data-view="psplus" style="--a:#c9a42f;--b:#4f3d0a">
+        <button class="tile" data-view="psplus" style="--a:#e6b629;--b:#5e3e08">
           <div class="tile-top"><span class="tile-ico">+</span><span class="tile-arr">›</span></div>
           <div class="tile-foot"><b>PS Plus</b><small>${psMin ? 'от ' + money(psMin) : 'Подписки'}</small></div>
         </button>
-        <button class="tile" data-view="eaplay" style="--a:#d24d46;--b:#481313">
+        <button class="tile" data-view="eaplay" style="--a:#e64950;--b:#53122a">
           <div class="tile-top"><span class="tile-ico">EA</span><span class="tile-arr">›</span></div>
           <div class="tile-foot"><b>EA Play</b><small>${eaMin ? 'от ' + money(eaMin) : 'Каталог EA'}</small></div>
         </button>
-        <button class="tile" data-view="wallet" style="--a:#2fa86c;--b:#0c4026">
+        <button class="tile" data-view="wallet" style="--a:#34b878;--b:#0c452d">
           <div class="tile-top"><span class="tile-ico">₴</span><span class="tile-arr">›</span></div>
           <div class="tile-foot"><b>Пополнение</b><small>1 ₴ = ${esc(rate)} ${esc(cur())}</small></div>
         </button>
@@ -651,8 +724,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     startCarousel();
   }
 
-  function subHeader(tag, title) {
+  function subHeader(tag, title, bgImg = '') {
     return `<section class="sub-hero">
+      ${bgImg ? `<img src="${esc(bgImg)}" alt="" class="sub-hero-img" onerror="this.remove()">` : ''}
       <div class="sub-top">
         <button class="back" data-back aria-label="Назад">‹</button>
         <span class="sub-tag">${esc(tag)}</span>
@@ -691,20 +765,25 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
   function renderPsPlus() {
     const tiers = (catalog.tiers || []).filter(t => t.id !== 'eaplay');
-    app.innerHTML = subHeader('PLAYSTATION PLUS', 'Тарифы PS Plus')
+    const img = (catalog.assets && catalog.assets.psplus) || 'assets/screen_psplus.png';
+    app.innerHTML = subHeader('PLAYSTATION PLUS', 'Подписки для PlayStation', img)
       + `<main class="page">${tiers.map(tierBlock).join('')}</main>`;
   }
 
   function renderEaPlay() {
     const t = (catalog.tiers || []).find(x => x.id === 'eaplay');
-    app.innerHTML = subHeader('EA PLAY', 'EA Play')
+    const img = (catalog.assets && catalog.assets.eaplay) || 'assets/screen_eaplay.png';
+    app.innerHTML = subHeader('EA PLAY', 'Для фанатов игр от EA', img)
       + `<main class="page">${t ? tierBlock(t) : '<div class="empty">Тариф не найден</div>'}</main>`;
   }
 
   function gameCard(g) {
+    const cover = g.image || g.cover || '';
     return `<div class="gw">
-      <button class="gcard" data-game="${esc(g.id)}" style="--a:${esc(g.color || '#2fd4a0')};--b:${esc(g.color2 || '#06382b')}">
-        <div class="slide-art">${artSvg(g.art || 'sunset', g.color || '#2fd4a0', g.color2 || '#06382b')}</div>
+      <button class="gcard" data-game="${esc(g.id)}" style="--a:${esc(g.color || '#ff4fa3')};--b:${esc(g.color2 || '#230b59')}">
+        ${cover
+          ? `<img src="${esc(cover)}" alt="${esc(g.title)}" loading="lazy" onerror="this.remove()">`
+          : `<div class="slide-art">${artSvg(g.art || 'sunset', g.color || '#ff4fa3', g.color2 || '#230b59')}</div>`}
         <div class="gtxt">
           <div class="gtitle">${esc(g.title)}</div>
           <div class="gprice">${money(g.price)}</div>
@@ -719,8 +798,16 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
   function renderCatalog() {
     const games = catalog.games || [];
     const tiers = catalog.tiers || [];
+    const promoImg = (catalog.assets && catalog.assets.promo) || 'assets/promo_banner.png';
+    const promo = state.catTab === 'games'
+      ? `<div class="promo-card">
+          <img src="${esc(promoImg)}" alt="" onerror="this.remove()">
+          <div><b>Скидки на игры</b><span>до 70%</span></div>
+          <button class="slide-go" data-view="psplus">Тарифы →</button>
+        </div>`
+      : '';
     const body = state.catTab === 'games'
-      ? `<div class="games-grid">${games.map(gameCard).join('')}</div>`
+      ? `<div class="games-grid">${games.map(gameCard).join('')}</div>${promo}`
       : `<main class="page">${tiers.map(tierBlock).join('')}</main>`;
     app.innerHTML = subHeader('КАТАЛОГ', 'Каталог LUMO')
       + `<div class="tabs-row">
@@ -735,8 +822,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     if (!g) { state.view = 'home'; return renderHome(); }
     const chips = (g.chips || []).map(c => `<span class="chip-btn on">${esc(c)}</span>`).join('');
     const pts = (g.points || []).map(p => `<li>${esc(p)}</li>`).join('');
+    const cover = g.image || g.cover || '';
     app.innerHTML = `
       <section class="sub-hero">
+        ${cover ? `<img src="${esc(cover)}" alt="" class="sub-hero-img" onerror="this.remove()">` : ''}
         <div class="sub-top">
           <button class="back" data-back aria-label="Назад">‹</button>
           <span class="sub-tag">${esc(g.tag || 'PLAYSTATION')}</span>
@@ -769,12 +858,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     return Math.round(wAmount() * wCfg().rate);
   }
   function wTotal() {
-    return wRub() + (state.w.ua ? uaFee() : 0);
+    return wRub() + (state.w.psAcc ? psAccFee() : 0);
   }
 
   function walletSummaryHtml() {
     const c = wCfg(), ok = wValid(), a = wAmount();
-    const feeRow = state.w.ua ? `<div class="row"><span>Украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    const feeRow = state.w.psAcc ? `<div class="row"><span>Создание аккаунта PS</span><span>${money(psAccFee())}</span></div>` : '';
     return `<b>Расчёт пополнения</b>
       <div class="row"><span>Сумма в гривнах</span><span>${a ? uahFmt(a) : '—'}</span></div>
       <div class="row"><span>Курс</span><span>1 ₴ = ${esc(c.rate)} ${esc(cur())}</span></div>
@@ -795,9 +884,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
   function renderWallet() {
     const c = wCfg(), w = state.w, send = canSend();
+    const wImg = (catalog.assets && catalog.assets.wallet) || 'assets/wallet_banner.png';
     const presets = c.presets.map(v => `<button class="wp ${v === wAmount() ? 'on' : ''}" data-wpre="${v}">${uahFmt(v)}</button>`).join('');
-    const accountBlock = w.ua
-      ? `<p class="tiny">Создадим новый украинский аккаунт и передадим данные в чате с ботом.</p>`
+    const accountBlock = w.psAcc
+      ? `<p class="tiny">Создадим новый аккаунт PS и передадим данные в чате с ботом.</p>`
       : (send
         ? `<div class="card">
             <label class="field">Email аккаунта PlayStation *
@@ -814,7 +904,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
         </div>`
       : '';
 
-    app.innerHTML = subHeader('PSN УКРАИНА', 'Пополнение кошелька')
+    app.innerHTML = subHeader('БЫСТРО · УДОБНО · БЕЗ КОМИССИИ', 'Пополнение кошелька', wImg)
       + `<main class="page">
           <div class="card">
             <b>Сумма в гривнах</b>
@@ -823,9 +913,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
             <p class="tiny">Курс: 1 ₴ = ${esc(c.rate)} ${esc(cur())} · от ${uahFmt(c.min)}</p>
           </div>
 
-          <button class="chk ${w.ua ? 'on' : ''}" data-wua>
-            <span class="box">${w.ua ? '✓' : ''}</span>
-            <span>Создать украинский аккаунт (+${money(uaFee())})</span>
+          <button class="chk ${w.psAcc ? 'on' : ''}" data-wua>
+            <span class="box">${w.psAcc ? '✓' : ''}</span>
+            <span>Создать аккаунт PS (+${money(psAccFee())})</span>
           </button>
 
           ${accountBlock}
@@ -848,7 +938,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
       if (el) { el.classList.add('bad'); el.focus(); }
       return toast('Сумма пополнения: от ' + uahFmt(wCfg().min) + ' до ' + uahFmt(wCfg().max));
     }
-    if (send && !w.ua && !EMAIL_RE.test(email)) {
+    if (send && !w.psAcc && !EMAIL_RE.test(email)) {
       const el = document.getElementById('wEmail');
       if (el) { el.classList.add('bad'); el.focus(); }
       return toast('Укажите корректный email аккаунта');
@@ -856,7 +946,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     const amount = wAmount(), total = wTotal();
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = [{ title: 'Пополнение кошелька · ' + uahFmt(amount), period: '', q: 1 }];
-    if (w.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
+    if (w.psAcc) items.push({ title: 'Создать аккаунт PS', period: '', q: 1 });
     orders.unshift({
       date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()),
       items,
@@ -869,13 +959,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     const payload = {
       wallet: {
         uah: amount,
-        ua: w.ua,
-        email: w.ua ? '' : email,
+        ps_account: w.psAcc,
+        email: w.psAcc ? '' : email,
         comment: w.comment.trim().slice(0, 300)
       }
     };
-    const url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=w_' + amount + (w.ua ? '_u' : '');
-    w.ua = false;
+    const url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=w_' + amount + (w.psAcc ? '_u' : '');
+    w.psAcc = false;
     w.comment = '';
 
     if (send) {
@@ -935,16 +1025,16 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
   }
 
   function ckTotal() {
-    return cartTotal() + (state.ck.ua ? uaFee() : 0);
+    return cartTotal() + (state.ck.psAcc ? psAccFee() : 0);
   }
 
   function renderCheckout() {
     if (!cart.length) { state.view = 'cart'; return renderCart(); }
     const ck = state.ck, send = canSend();
     const rows = cart.map(i => `<div class="row"><span>${esc(lineTitle(i))} · ${esc(linePeriodLabel(i))}${i.q > 1 ? ' × ' + i.q : ''}</span><span>${money(priceOf(i) * i.q)}</span></div>`).join('');
-    const feeRow = ck.ua ? `<div class="row"><span>Украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
-    const account = ck.ua
-      ? `<p class="tiny">Создадим новый украинский аккаунт и передадим данные в чате с ботом.</p>`
+    const feeRow = ck.psAcc ? `<div class="row"><span>Создание аккаунта PS</span><span>${money(psAccFee())}</span></div>` : '';
+    const account = ck.psAcc
+      ? `<p class="tiny">Создадим новый аккаунт PS и передадим данные в чате с ботом.</p>`
       : (send
         ? `<div class="card">
             <label class="field">Email аккаунта PlayStation *
@@ -970,9 +1060,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
             <div class="total-row"><span>Итого</span><b>${money(ckTotal())}</b></div>
           </div>
 
-          <button class="chk ${ck.ua ? 'on' : ''}" data-ua>
-            <span class="box">${ck.ua ? '✓' : ''}</span>
-            <span>Создать украинский аккаунт (+${money(uaFee())})</span>
+          <button class="chk ${ck.psAcc ? 'on' : ''}" data-ua>
+            <span class="box">${ck.psAcc ? '✓' : ''}</span>
+            <span>Создать аккаунт PS (+${money(psAccFee())})</span>
           </button>
 
           ${account}
@@ -988,7 +1078,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
   function submitOrder() {
     if (!cart.length) return;
     const ck = state.ck, send = canSend(), email = ck.email.trim();
-    if (send && !ck.ua && !EMAIL_RE.test(email)) {
+    if (send && !ck.psAcc && !EMAIL_RE.test(email)) {
       const el = document.getElementById('ckEmail');
       if (el) { el.classList.add('bad'); el.focus(); }
       return toast('Укажите корректный email аккаунта');
@@ -996,13 +1086,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
     const codes = cart.map(i => i.t.slice(0, 2) + '-' + i.p + '-' + i.q);
     let url = null;
     if (!send) {
-      url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=c_' + codes.join('_') + (ck.ua ? '_u' : '');
+      url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=c_' + codes.join('_') + (ck.psAcc ? '_u' : '');
       if (url.split('start=')[1].length > 64) return toast('Слишком много позиций. Оформите часть заказа отдельно');
     }
 
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = cart.map(i => ({ title: lineTitle(i), period: gameOf(i.t) ? '' : linePeriodLabel(i), q: i.q }));
-    if (ck.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
+    if (ck.psAcc) items.push({ title: 'Создать аккаунт PS', period: '', q: 1 });
     orders.unshift({
       date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()),
       items,
@@ -1014,12 +1104,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
 
     const payload = {
       items: codes,
-      ua: ck.ua,
-      email: ck.ua ? '' : email,
+      ps_account: ck.psAcc,
+      email: ck.psAcc ? '' : email,
       comment: ck.comment.trim().slice(0, 300)
     };
     cart = [];
-    ck.ua = false;
+    ck.psAcc = false;
     ck.comment = '';
     saveCart();
 
@@ -1177,13 +1267,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
       if (inp) inp.value = state.w.amount;
       return updateWalletDom();
     }
-    if ('wua' in d) { state.w.ua = !state.w.ua; return render(); }
+    if ('wua' in d) { state.w.psAcc = !state.w.psAcc; return render(); }
     if ('wsend' in d) return submitWallet();
     if (d.inc != null) { const l = cart[+d.inc]; if (l && l.q < MAX_QTY) { l.q++; saveCart(); render(); } return; }
     if (d.dec != null) { const l = cart[+d.dec]; if (l) { if (l.q > 1) l.q--; else cart.splice(+d.dec, 1); saveCart(); render(); } return; }
     if (d.rm != null) { cart.splice(+d.rm, 1); saveCart(); return render(); }
     if ('clear' in d) { cart = []; saveCart(); return render(); }
-    if ('ua' in d) { state.ck.ua = !state.ck.ua; return render(); }
+    if ('ua' in d) { state.ck.psAcc = !state.ck.psAcc; return render(); }
     if ('send' in d) return submitOrder();
   });
 
@@ -1197,9 +1287,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
       if (gr.ok) {
         const g = await gr.json();
         if (g.shop_name) cat.shop_name = g.shop_name;
-        if (g.ua_account_fee != null) cat.ua_account_fee = g.ua_account_fee;
+        if (g.ps_account_fee != null) cat.ps_account_fee = g.ps_account_fee;
         if (g.games) cat.games = g.games;
         if (g.wallet) cat.wallet = g.wallet;
+        if (g.assets) cat.assets = Object.assign({}, cat.assets || {}, g.assets);
       }
     } catch (e) {}
     try {
@@ -1217,8 +1308,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-a
       try {
         tg.ready();
         tg.expand();
-        tg.setHeaderColor('#251065');
-        tg.setBackgroundColor('#090b1a');
+        tg.setHeaderColor('#1c094d');
+        tg.setBackgroundColor('#090617');
         tg.BackButton.onClick(() => go(state.view === 'checkout' ? 'cart' : (state.ret || 'home')));
       } catch (e) {}
     }
