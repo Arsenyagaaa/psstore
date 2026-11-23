@@ -633,7 +633,7 @@ h1 em{font-style:normal;color:var(--yellow)}
         ${art}
       </section>
       <main>
-        <div class="tiers">${catalog.tiers.map(tierCard).join('')}</div>
+        <div class="tiers">${catalog.tiers.filter(t => t.id !== 'eaplay').map(tierCard).join('')}</div>
         ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
       </main>`;
   }
