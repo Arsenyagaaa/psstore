@@ -234,6 +234,26 @@ h1 em{font-style:normal;color:var(--yellow)}
 }
 #toast.show{opacity:1;transform:translate(-50%,0)}
 .err{padding:60px 24px;text-align:center;color:var(--muted);font-weight:600}
+
+.wamt{position:relative}
+.wamt input{width:100%;background:#0a0d22;border:2px solid transparent;border-radius:16px;padding:16px 46px 16px 18px;color:#fff;font:800 28px var(--display);outline:none}
+.wamt input:focus{border-color:var(--yellow)}
+.wamt input.bad{border-color:#ff5a6e}
+.wamt i{position:absolute;right:18px;top:50%;transform:translateY(-50%);font:800 22px var(--display);font-style:normal;color:var(--muted)}
+.wpre{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wp{background:#0a0d22;border-radius:14px;padding:14px 8px;font-weight:800;font-size:15px;color:#fff}
+.wp.on{background:var(--yellow);color:#1a1300}
+.how{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:20px;padding:16px 18px;font-weight:800;font-size:15px;color:#fff;text-align:left}
+.how span{color:var(--yellow);font-size:20px;transition:transform .2s}
+.how.on span{transform:rotate(90deg)}
+.steps{background:var(--card);border-radius:20px;padding:6px 18px 14px;margin-top:-6px;counter-reset:s}
+.steps li{list-style:none;counter-increment:s;display:flex;gap:12px;padding:10px 0;font-size:14px;line-height:1.4;font-weight:600}
+.steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;background:var(--yellow);color:#1a1300;font-weight:800;font-size:13px;display:grid;place-items:center}
+.rev{background:var(--card);border-radius:20px;padding:16px 18px;display:grid;gap:8px}
+.rev b{font-size:14px}
+.rev small{color:var(--muted);font-weight:700;font-size:12px}
+.rev p{font-size:14px;line-height:1.45;font-weight:600}
+.rev img{width:100%;border-radius:14px;display:block}
 </style>
 </head>
 <body>
@@ -269,7 +289,7 @@ h1 em{font-style:normal;color:var(--yellow)}
 (() => {
   const tg = window.Telegram && window.Telegram.WebApp;
   const app = document.getElementById('app');
-  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' } };
+  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' }, w: { amount: 200, ua: false, email: '', comment: '', how: false } };
   const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,20}$/;
   let catalog = null;
   let cart = [], favs = [], orders = [];
@@ -520,6 +540,7 @@ h1 em{font-style:normal;color:var(--yellow)}
         ${art}
       </section>
       <main>
+        <button class="contact" data-wallet style="margin:0 0 14px;width:100%">Пополнение кошелька · Украина<small>${esc(walletHint())}</small></button>
         <div class="tiers">${cards}</div>
         ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
         ${contact}
@@ -725,19 +746,138 @@ h1 em{font-style:normal;color:var(--yellow)}
   function render() {
     const y = window.scrollY;
     stopCarousel();
-    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, game: renderGame, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
+    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, game: renderGame, wallet: renderWallet, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
     window.scrollTo(0, y);
     updateTabs();
-    if (tg && tg.BackButton) { (state.view === 'tier' || state.view === 'checkout' || state.view === 'game') ? tg.BackButton.show() : tg.BackButton.hide(); }
+    if (tg && tg.BackButton) { (state.view === 'tier' || state.view === 'checkout' || state.view === 'game' || state.view === 'wallet') ? tg.BackButton.show() : tg.BackButton.hide(); }
   }
 
   function go(view, tierId) {
     state.view = view; state.tierId = tierId || null; state.periodId = null;
-    if (view !== 'tier' && view !== 'checkout' && view !== 'game') state.tab = view;
+    if (view !== 'tier' && view !== 'checkout' && view !== 'game' && view !== 'wallet') state.tab = view;
     document.getElementById('toast').classList.remove('show');
     app.innerHTML = '';
     render();
     window.scrollTo(0, 0);
+  }
+
+
+  /* ---------- wallet (UA top-up) ---------- */
+  const WCFG = () => ({
+    rate: catalog.uah_rate != null ? Number(catalog.uah_rate) : 5,
+    min: catalog.uah_min || 200,
+    max: catalog.uah_max || 50000,
+    presets: catalog.uah_presets || [200, 500, 1000, 2000, 4000, 10000]
+  });
+  const uah = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴';
+  const rateStr = r => String(r).replace('.', ',');
+  const walletHint = () => '1 ₴ = ' + rateStr(WCFG().rate) + ' ' + catalog.currency + ' · от ' + uah(WCFG().min);
+  const wAmount = () => { const n = parseInt(String(state.w.amount).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; };
+  const wValid = () => { const c = WCFG(), n = wAmount(); return n >= c.min && n <= c.max; };
+  const wRub = () => Math.round(wAmount() * WCFG().rate);
+  const wTotal = () => wRub() + (state.w.ua ? uaFee() : 0);
+
+  function walletSummaryHtml() {
+    const c = WCFG(), ok = wValid(), a = wAmount();
+    const feeRow = state.w.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    return `<h3>Ваш заказ</h3>
+      <div class="ck-row"><span>На кошелёк PSN</span><span>${a ? uah(a) : '—'}</span></div>
+      <div class="ck-row"><span>Курс</span><span>${rateStr(c.rate)} ${esc(catalog.currency)}/₴</span></div>
+      <div class="ck-row"><span>Пополнение в рублях</span><span>${ok ? money(wRub()) : '—'}</span></div>
+      ${feeRow}
+      <div class="ck-total"><span>К оплате</span><b>${ok ? money(wTotal()) : '—'}</b></div>
+      ${a && !ok ? `<p class="tiny" style="color:#ff8a98;margin:0">Сумма пополнения: от ${uah(c.min)} до ${uah(c.max)}</p>` : ''}`;
+  }
+
+  function updateWalletSummary() {
+    const s = document.getElementById('wSum'); if (s) s.innerHTML = walletSummaryHtml();
+    const a = wAmount();
+    document.querySelectorAll('[data-wpre]').forEach(b => b.classList.toggle('on', +b.dataset.wpre === a));
+    const sm = document.getElementById('wCtaSub');
+    if (sm) sm.textContent = wValid() ? 'К оплате ' + money(wTotal()) + ' · оплату согласует менеджер' : 'Укажите сумму от ' + uah(WCFG().min);
+  }
+
+  function renderWallet() {
+    const w = state.w, c = WCFG(), send = canSend();
+    const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    const pre = c.presets.map(v => `<button class="wp ${v === wAmount() ? 'on' : ''}" data-wpre="${v}">${uah(v)}</button>`).join('');
+    let account;
+    if (w.ua) {
+      account = '<p class="tiny" style="margin:0 6px">Аккаунт создадим за вас. Данные для входа менеджер пришлёт в чате.</p>';
+    } else if (send) {
+      account = `<div class="ck"><h3>Аккаунт</h3>
+        <label class="field">Email аккаунта PlayStation *
+          <input id="wEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(w.email)}">
+        </label>
+        <p class="tiny" style="margin:0">Пароль и коды входа здесь вводить не нужно.</p></div>`;
+    } else {
+      account = '<p class="tiny" style="margin:0 6px">Email аккаунта менеджер уточнит в чате. Чтобы указать его здесь, откройте магазин кнопкой «Открыть магазин» под полем ввода в чате с ботом.</p>';
+    }
+    const comment = send ? `<div class="ck"><label class="field">Комментарий для менеджера · необязательно
+        <textarea id="wComment" rows="3" maxlength="300">${esc(w.comment)}</textarea></label></div>` : '';
+    const steps = (catalog.wallet_steps || []).map(s => `<li>${esc(s)}</li>`).join('');
+    const reviews = (catalog.reviews || []).length
+      ? `<div class="sec">Отзывы</div>` + catalog.reviews.map(r => `<div class="rev">
+          ${r.name ? `<b>${esc(r.name)}${r.date ? ` <small>· ${esc(r.date)}</small>` : ''}</b>` : ''}
+          ${r.text ? `<p>${esc(r.text)}</p>` : ''}
+          ${r.image ? `<img src="${esc(r.image)}" alt="Отзыв" loading="lazy">` : ''}
+        </div>`).join('') : '';
+    app.innerHTML = `
+      <section class="hero hero-mini">
+        <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">PSN</span><span class="hero-sub">Украина</span></div>
+        <h1>Пополнение кошелька</h1>
+      </section>
+      <main class="page">
+        <div class="ck"><h3>Сумма</h3>
+          <div class="wamt"><input id="wAmount" type="text" inputmode="numeric" autocomplete="off" value="${wAmount() || ''}"><i>₴</i></div>
+          <div class="wpre">${pre}</div>
+          <p class="tiny" style="margin:0">Минимум: ${uah(c.min)}</p>
+        </div>
+        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — украинский аккаунт: ${money(uaFee())}</span></button>
+        ${account}
+        ${comment}
+        <button class="how ${w.how ? 'on' : ''}" data-whow>Как это работает<span>›</span></button>
+        ${w.how ? `<ol class="steps">${steps}</ol>` : ''}
+        <div class="ck" id="wSum">${walletSummaryHtml()}</div>
+        <button class="cta" data-wsend style="--c:var(--yellow)">
+          <div><b>Отправить заявку</b><small id="wCtaSub"></small></div>
+          <span class="go">Готово →</span>
+        </button>
+        ${reviews}
+      </main>`;
+    updateWalletSummary();
+  }
+
+  function submitWallet() {
+    const w = state.w, send = canSend(), email = w.email.trim();
+    if (!wValid()) {
+      const el = document.getElementById('wAmount');
+      if (el) { el.classList.add('bad'); el.focus(); }
+      return toast('Сумма пополнения: от ' + uah(WCFG().min) + ' до ' + uah(WCFG().max));
+    }
+    if (send && !w.ua && !EMAIL_RE.test(email)) {
+      const el = document.getElementById('wEmail');
+      if (el) { el.classList.add('bad'); el.focus(); }
+      return toast('Укажите email аккаунта PlayStation');
+    }
+    const amount = wAmount(), total = wTotal();
+    const d = new Date(), z = n => String(n).padStart(2, '0');
+    const items = [{ title: 'Кошелёк PSN · ' + uah(amount), period: '', q: 1 }];
+    if (w.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
+    orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total });
+    orders = orders.slice(0, 10);
+    store.set('ps_orders', orders);
+    if (email) store.set('ps_email', email);
+    const payload = { wallet: amount, ua: w.ua, email: w.ua ? '' : email, comment: w.comment.trim().slice(0, 300) };
+    const url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=w_' + amount + (w.ua ? '_u' : '');
+    w.ua = false; w.comment = '';
+    try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+    if (send) { tg.sendData(JSON.stringify(payload)); return; }
+    if (tg && tg.openTelegramLink) {
+      tg.openTelegramLink(url);
+      setTimeout(() => { try { tg.close(); } catch (e) {} }, 300);
+    } else window.open(url, '_blank');
+    go('profile');
   }
 
   /* ---------- sending the order ---------- */
@@ -782,6 +922,13 @@ h1 em{font-style:normal;color:var(--yellow)}
   app.addEventListener('input', e => {
     if (e.target.id === 'ckEmail') { state.ck.email = e.target.value; e.target.classList.remove('bad'); }
     else if (e.target.id === 'ckComment') state.ck.comment = e.target.value;
+    else if (e.target.id === 'wAmount') {
+      const v = e.target.value.replace(/\D/g, '').slice(0, 7);
+      if (v !== e.target.value) e.target.value = v;
+      state.w.amount = v; e.target.classList.remove('bad'); updateWalletSummary();
+    }
+    else if (e.target.id === 'wEmail') { state.w.email = e.target.value; e.target.classList.remove('bad'); }
+    else if (e.target.id === 'wComment') state.w.comment = e.target.value;
   });
 
   document.getElementById('tabs').addEventListener('click', e => {
@@ -790,7 +937,7 @@ h1 em{font-style:normal;color:var(--yellow)}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-wpre],[data-wua],[data-whow],[data-wsend]');
     if (!el) return;
     const d = el.dataset;
     if (d.tab) { haptic(); go(d.tab); }
@@ -812,6 +959,11 @@ h1 em{font-style:normal;color:var(--yellow)}
     else if ('checkout' in d) { haptic(); go('checkout'); }
     else if ('ua' in d) { state.ck.ua = !state.ck.ua; haptic(); render(); }
     else if ('send' in d) submitOrder();
+    else if ('wallet' in d) { haptic(); go('wallet'); }
+    else if (d.wpre) { haptic(); state.w.amount = d.wpre; document.getElementById('wAmount').value = d.wpre; updateWalletSummary(); }
+    else if ('wua' in d) { state.w.ua = !state.w.ua; haptic(); render(); }
+    else if ('whow' in d) { state.w.how = !state.w.how; render(); }
+    else if ('wsend' in d) submitWallet();
     else if ('ckback' in d) go('cart');
     else if ('contact' in d) {
       const url = 'https://t.me/' + catalog.contact;
@@ -841,7 +993,7 @@ h1 em{font-style:normal;color:var(--yellow)}
         .map(i => ({ t: i.t, p: i.p, q: Math.min(MAX_QTY, Math.max(1, i.q | 0)) })).slice(0, MAX_LINES);
       favs = store.get('ps_fav', []).filter(id => itemOf(id));
       orders = store.get('ps_orders', []);
-      state.ck.email = store.get('ps_email', '') || '';
+      state.ck.email = store.get('ps_email', '') || ''; state.w.email = state.ck.email;
       render();
     } catch (e) {
       app.innerHTML = '<div class="err">Не удалось загрузить каталог.<br>Попробуйте открыть магазин ещё раз.</div>';
