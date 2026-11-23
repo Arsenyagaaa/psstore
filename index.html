@@ -240,6 +240,9 @@ h1 em{font-style:normal;color:var(--yellow)}
 .tl .ic{position:absolute;left:50%;top:42%;width:46%;transform:translate(-50%,-50%)}
 .tl span{position:absolute;left:10px;right:10px;bottom:10px;width:max-content;max-width:calc(100% - 20px);background:rgba(6,7,24,.66);color:#fff;border-radius:999px;padding:7px 12px;font-weight:800;font-size:13px;line-height:1.2}
 .tl:active{transform:scale(.985)}
+.slide-txt{flex-wrap:wrap}
+.slide-txt>div{min-width:0;flex:1 1 150px}
+.slide-go{flex:none;margin-left:auto}
 .wamt{position:relative}
 .wamt input{width:100%;background:#0a0d22;border:2px solid transparent;border-radius:16px;padding:16px 46px 16px 18px;color:#fff;font:800 28px var(--display);outline:none}
 .wamt input:focus{border-color:var(--yellow)}
@@ -500,7 +503,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     return `<button class="slide" data-wallet style="--a:#2fd4a0;--b:#06382b">
       <div class="slide-art">${walletArt()}</div>
       <span class="slide-tag">PSN · УКРАИНА</span>
-      <div class="slide-txt"><div><h2 style="font-size:26px">Пополнение кошелька</h2><small>1 ₴ = ${esc(rateStr(WCFG().rate))} ${esc(catalog.currency)}</small></div><span class="slide-go">Пополнить →</span></div>
+      <div class="slide-txt"><div><h2 style="font-size:22px">Пополнение кошелька</h2><small>1 ₴ = ${esc(rateStr(WCFG().rate))} ${esc(catalog.currency)}</small></div><span class="slide-go">Пополнить →</span></div>
     </button>`;
   }
 
@@ -513,8 +516,8 @@ h1 em{font-style:normal;color:var(--yellow)}
     };
     const tile = (attr, a, b, icon, label) => `<button class="tl" ${attr} style="--a:${a};--b:${b}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ico[icon]}</svg><span>${label}</span></button>`;
     const out = [];
-    if ((catalog.games || []).length) out.push(tile('data-jump="games"', '#3aa0e8', '#0b3a63', 'bag', 'Игры'));
-    out.push(tile('data-jump="tiers"', '#e0b934', '#5c4a0c', 'plus', 'PS Plus'));
+    if ((catalog.games || []).length) out.push(tile('data-view="games"', '#3aa0e8', '#0b3a63', 'bag', 'Игры'));
+    out.push(tile('data-view="plans"', '#e0b934', '#5c4a0c', 'plus', 'PS Plus'));
     out.push(tile('data-wallet', '#33bd74', '#0d4a2a', 'wallet', 'Пополнение кошелька'));
     if (catalog.tiers.some(t => t.id === 'eaplay')) out.push(tile('data-tier="eaplay"', '#e24b4b', '#4a0f0f', 'ea', 'EA Play'));
     return `<div class="tiles">${out.join('')}</div>`;
@@ -566,6 +569,30 @@ h1 em{font-style:normal;color:var(--yellow)}
   }
 
   function renderHome() {
+    const slides = (catalog.games || []).map(slideHtml).concat(walletSlide());
+    const contact = catalog.contact
+      ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
+    app.innerHTML = `<section class="car"><div class="car-track" id="carTrack">${slides.join('')}</div>
+        <div class="dots" id="carDots">${slides.map(() => '<i class="dot"></i>').join('')}</div></section>
+      ${sectionTiles()}
+      <main style="padding-top:18px">${contact}</main>`;
+    startCarousel();
+  }
+
+  function subHero(pill, sub, title) {
+    return `<section class="hero hero-mini">
+      <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">${esc(pill)}</span><span class="hero-sub">${esc(sub)}</span></div>
+      <h1>${esc(title)}</h1>
+    </section>`;
+  }
+
+  function renderGames() {
+    const games = catalog.games || [];
+    app.innerHTML = subHero('ИГРЫ', 'PlayStation', 'Игры')
+      + `<div class="games">${games.map(gameCard).join('')}</div>`;
+  }
+
+  function renderPlans() {
     const art = heroSvg(250, {
       seed: 11, sunX: 200, sunR: 82,
       palms: [{ x: -22, h: 150 }, { x: -22, h: 150, flip: true }],
@@ -574,27 +601,16 @@ h1 em{font-style:normal;color:var(--yellow)}
         { x: 288, c: '#2fd4ff', pad: '#ff4fa3', pony: true }
       ]
     });
-    const cards = catalog.tiers.map(tierCard).join('');
-    const contact = catalog.contact
-      ? `<button class="contact" data-contact>Остались вопросы?<small>Пишите в Telegram: @${esc(catalog.contact)}</small></button>` : '';
-    const games = catalog.games || [];
-    const slides = games.map(slideHtml).concat(walletSlide());
-    const carousel = `<section class="car"><div class="car-track" id="carTrack">${slides.join('')}</div>
-         <div class="dots" id="carDots">${slides.map(() => '<i class="dot"></i>').join('')}</div></section>
-         ${sectionTiles()}
-         ${games.length ? `<h2 class="sec-h" id="secGames">Игры</h2><div class="games">${games.map(gameCard).join('')}</div>` : ''}`;
-    app.innerHTML = carousel + `
-      <section class="hero hero-home" style="${games.length ? 'margin-top:26px' : ''}">
-        <div class="hero-top"><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
+    app.innerHTML = `
+      <section class="hero hero-home">
+        <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">PS PLUS</span><span class="hero-sub">Подписки для PlayStation</span></div>
         <h1>Выбери свой <em>тариф</em> и играй</h1>
         ${art}
       </section>
       <main>
-        <div class="tiers" id="secTiers">${cards}</div>
+        <div class="tiers">${catalog.tiers.map(tierCard).join('')}</div>
         ${catalog.note ? `<p class="note">${esc(catalog.note)}</p>` : ''}
-        ${contact}
       </main>`;
-    startCarousel();
   }
 
   function renderFav() {
@@ -792,18 +808,22 @@ h1 em{font-style:normal;color:var(--yellow)}
       </main>`;
   }
 
+  const DETAIL = ['tier', 'game', 'wallet'];
+  const backTarget = () => (DETAIL.includes(state.view) ? (state.ret || state.tab) : state.tab);
+
   function render() {
     const y = window.scrollY;
     stopCarousel();
-    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, game: renderGame, wallet: renderWallet, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
+    ({ home: renderHome, fav: renderFav, cart: renderCart, checkout: renderCheckout, game: renderGame, wallet: renderWallet, games: renderGames, plans: renderPlans, profile: renderProfile, tier: renderTier }[state.view] || renderHome)();
     window.scrollTo(0, y);
     updateTabs();
-    if (tg && tg.BackButton) { (state.view === 'tier' || state.view === 'checkout' || state.view === 'game' || state.view === 'wallet') ? tg.BackButton.show() : tg.BackButton.hide(); }
+    if (tg && tg.BackButton) { (DETAIL.includes(state.view) || state.view === 'checkout' || state.view === 'games' || state.view === 'plans') ? tg.BackButton.show() : tg.BackButton.hide(); }
   }
 
   function go(view, tierId) {
+    if (DETAIL.includes(view) && !DETAIL.includes(state.view) && state.view !== 'checkout') state.ret = state.view;
     state.view = view; state.tierId = tierId || null; state.periodId = null;
-    if (view !== 'tier' && view !== 'checkout' && view !== 'game' && view !== 'wallet') state.tab = view;
+    if (['home', 'fav', 'cart', 'profile'].includes(view)) state.tab = view;
     document.getElementById('toast').classList.remove('show');
     app.innerHTML = '';
     render();
@@ -986,7 +1006,7 @@ h1 em{font-style:normal;color:var(--yellow)}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-jump],[data-wpre],[data-wua],[data-whow],[data-wsend]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-view],[data-wpre],[data-wua],[data-whow],[data-wsend]');
     if (!el) return;
     const d = el.dataset;
     if (d.tab) { haptic(); go(d.tab); }
@@ -1000,7 +1020,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       if (state.view === 'fav') render();
       else document.querySelectorAll('[data-fav]').forEach(b => b.classList.toggle('on', favs.includes(b.dataset.fav)));
     }
-    else if ('back' in d) go(state.tab);
+    else if ('back' in d) go(backTarget());
     else if (d.inc != null) { const l = cart[+d.inc]; if (l && l.q < MAX_QTY) { l.q++; saveCart(); render(); } }
     else if (d.dec != null) { const l = cart[+d.dec]; if (l) { if (l.q > 1) l.q--; else cart.splice(+d.dec, 1); saveCart(); render(); } }
     else if (d.rm != null) { cart.splice(+d.rm, 1); saveCart(); render(); }
@@ -1009,7 +1029,7 @@ h1 em{font-style:normal;color:var(--yellow)}
     else if ('ua' in d) { state.ck.ua = !state.ck.ua; haptic(); render(); }
     else if ('send' in d) submitOrder();
     else if ('wallet' in d) { haptic(); go('wallet'); }
-    else if (d.jump) { haptic(); const t = document.getElementById(d.jump === 'games' ? 'secGames' : 'secTiers'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    else if (d.view) { haptic(); go(d.view); }
     else if (d.wpre) { haptic(); state.w.amount = d.wpre; document.getElementById('wAmount').value = d.wpre; updateWalletSummary(); }
     else if ('wua' in d) { state.w.ua = !state.w.ua; haptic(); render(); }
     else if ('whow' in d) { state.w.how = !state.w.how; render(); }
@@ -1034,7 +1054,7 @@ h1 em{font-style:normal;color:var(--yellow)}
       try {
         tg.ready(); tg.expand();
         tg.setHeaderColor('#2b0d6e'); tg.setBackgroundColor('#0a0b1f');
-        tg.BackButton.onClick(() => go(state.view === 'checkout' ? 'cart' : state.tab));
+        tg.BackButton.onClick(() => go(state.view === 'checkout' ? 'cart' : backTarget()));
       } catch (e) {}
     }
     try {
