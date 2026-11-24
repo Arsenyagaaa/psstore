@@ -247,8 +247,6 @@ h1 em{font-style:normal;color:var(--yellow)}
 .slide-txt{flex-wrap:wrap}
 .slide-txt>div{min-width:0;flex:1 1 150px}
 .slide-go{flex:none;margin-left:auto}
-.hero-top-home{min-height:236px;padding-bottom:0}
-.hero-top-home h1{font-size:26px;max-width:80%;margin-top:14px}
 .car-up{position:relative;z-index:3;margin-top:-34px}
 .wamt{position:relative}
 .wamt input{width:100%;background:#0a0d22;border:2px solid transparent;border-radius:16px;padding:16px 46px 16px 18px;color:#fff;font:800 28px var(--display);outline:none}
@@ -638,41 +636,9 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     </svg>`;
   }
 
-  function slideHtml(g) {
-    return `<button class="slide" data-game="${esc(g.id)}" style="--a:${esc(g.color)};--b:${esc(g.color2)}">
-      <div class="slide-art">${gameArt(g)}</div>
-      <span class="slide-tag">${esc((g.tag || 'ИГРА').toUpperCase())}</span>
-      <div class="slide-txt"><div><h2>${esc(g.title)}</h2><small>${money(g.price)}</small></div><span class="slide-go">Купить →</span></div>
-    </button>`;
-  }
 
 
-  function walletArt() {
-    const n = ++artN;
-    return `<svg viewBox="0 0 360 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs><radialGradient id="wg${n}" cx=".5" cy=".35" r=".8"><stop offset="0" stop-color="#52e5a3" stop-opacity=".55"/><stop offset="1" stop-color="#52e5a3" stop-opacity="0"/></radialGradient></defs>
-      <rect width="360" height="300" fill="url(#wg${n})"/>
-      <g fill="none" stroke="#52e5a3" stroke-opacity=".25" stroke-width="2"><circle cx="180" cy="150" r="96"/><circle cx="180" cy="150" r="136"/></g>
-      <g transform="translate(180 140)">
-        <rect x="-86" y="-52" width="172" height="112" rx="22" fill="#b8f5da"/>
-        <rect x="-86" y="-52" width="172" height="30" rx="14" fill="#8fe6c0"/>
-        <rect x="26" y="-6" width="60" height="38" rx="14" fill="#0d4a2a"/>
-        <circle cx="46" cy="13" r="7" fill="#b8f5da"/>
-      </g>
-      <g transform="translate(268 82)"><circle r="34" fill="#ffd35c"/><circle r="34" fill="none" stroke="#0a0b1f" stroke-opacity=".2" stroke-width="3"/>
-        <text y="12" text-anchor="middle" font-family="Unbounded,Manrope,sans-serif" font-weight="800" font-size="34" fill="#3a2a00">₴</text></g>
-      <g transform="translate(70 112)"><circle r="26" fill="#fff"/><circle r="26" fill="none" stroke="#0a0b1f" stroke-opacity=".2" stroke-width="3"/>
-        <text y="9" text-anchor="middle" font-family="Unbounded,Manrope,sans-serif" font-weight="800" font-size="26" fill="#0d4a2a">₽</text></g>
-    </svg>`;
-  }
 
-  function walletSlide() {
-    return `<button class="slide" data-wallet style="--a:#2fd4a0;--b:#06382b">
-      <div class="slide-art">${walletArt()}</div>
-      <span class="slide-tag">PSN · УКРАИНА</span>
-      <div class="slide-txt"><div><h2 style="font-size:22px">Пополнение кошелька</h2><small>1 ₴ = ${esc(rateStr(WCFG().rate))} ${esc(catalog.currency)}</small></div><span class="slide-go">Пополнить →</span></div>
-    </button>`;
-  }
 
   function sectionTiles() {
     const ico = {
@@ -783,12 +749,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     startCarousel();
   }
 
-  function subHero(pill, sub, title) {
-    return `<section class="hero hero-mini">
-      <div class="hero-top"><button class="back" data-back aria-label="Назад">‹</button><span class="pill">${esc(pill)}</span><span class="hero-sub">${esc(sub)}</span></div>
-      <h1>${esc(title)}</h1>
-    </section>`;
-  }
 
   function renderGames() {
     const games = catalog.games || [];
@@ -1061,7 +1021,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   });
   const uah = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴';
   const rateStr = r => Number(r).toFixed(2).replace('.', ',');
-  const walletHint = () => '1 ₴ = ' + rateStr(WCFG().rate) + ' ' + catalog.currency + ' · от ' + uah(WCFG().min);
   const wAmount = () => { const n = parseInt(String(state.w.amount).replace(/\D/g, ''), 10); return isNaN(n) ? 0 : n; };
   const wValid = () => { const c = WCFG(), n = wAmount(); return n >= c.min && n <= c.max; };
   const wRub = () => Math.floor((wAmount() * Math.round(WCFG().rate * 100) + 50) / 100);
