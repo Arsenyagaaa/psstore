@@ -856,7 +856,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     const rows = cart.map(i => {
       return `<div class="ck-row"><span>${esc(lineTitle(i))} · ${esc(lineShort(i))}${i.q > 1 ? ' × ' + i.q : ''}</span><span>${money(priceOf(i) * i.q)}</span></div>`;
     }).join('');
-    const feeRow = ck.ua ? `<div class="ck-row"><span>Новый аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    const feeRow = ck.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
     const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
     let account;
@@ -879,7 +879,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       <main class="page">
         <div class="ck"><h3>Состав заказа</h3>${rows}${feeRow}
           <div class="ck-total"><span>Итого</span><b>${money(ckTotal())}</b></div></div>
-        <button class="chk ${ck.ua ? 'on' : ''}" data-ua><span class="box">${tick}</span><span>Нет аккаунта — создать новый: ${money(uaFee())}</span></button>
+        <button class="chk ${ck.ua ? 'on' : ''}" data-ua><span class="box">${tick}</span><span>Нет аккаунта — создать украинский: ${money(uaFee())}</span></button>
         ${account}
         ${comment}
         <button class="cta" data-send style="--c:var(--yellow)">
@@ -1028,7 +1028,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
 
   function walletSummaryHtml() {
     const c = WCFG(), ok = wValid(), a = wAmount();
-    const feeRow = state.w.ua ? `<div class="ck-row"><span>Новый аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    const feeRow = state.w.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
     return `<h3>Ваш заказ</h3>
       <div class="ck-row"><span>На кошелёк PSN</span><span>${a ? uah(a) : '—'}</span></div>
       <div class="ck-row"><span>Курс</span><span>${rateStr(c.rate)} ${esc(catalog.currency)}/₴</span></div>
@@ -1083,7 +1083,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
           <div class="wpre">${pre}</div>
           <p class="tiny" style="margin:0">Минимум: ${uah(c.min)}</p>
         </div>
-        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — создать аккаунт: ${money(uaFee())}</span></button>
+        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — украинский аккаунт: ${money(uaFee())}</span></button>
         ${account}
         ${comment}
         <button class="how ${w.how ? 'on' : ''}" data-whow>Как это работает<span>›</span></button>
@@ -1113,7 +1113,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     const amount = wAmount(), total = wTotal();
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = [{ title: 'Кошелёк PSN · ' + uah(amount), period: '', q: 1 }];
-    if (w.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
+    if (w.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total });
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
@@ -1149,7 +1149,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     }
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = cart.map(i => ({ title: lineTitle(i), period: gameOf(i.t) ? '' : lineShort(i), q: i.q }));
-    if (ck.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
+    if (ck.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total: ckTotal() });
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
