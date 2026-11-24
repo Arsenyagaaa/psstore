@@ -1,7 +1,7 @@
 {
   "shop_name": "LUMO",
   "currency": "₽",
-  "ua_account_fee": 80,
+  "ua_account_fee": 150,
   "contact": "Arsenyaga",
   "note": "Выгода считается относительно оплаты каждый месяц по цене 1 месяца.",
   "periods": [
