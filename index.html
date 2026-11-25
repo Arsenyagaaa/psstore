@@ -248,7 +248,6 @@ h1 em{font-style:normal;color:var(--yellow)}
 .slide-txt>div{min-width:0;flex:1 1 150px}
 .slide-go{flex:none;margin-left:auto}
 .car-up{position:relative;z-index:3;margin-top:-34px}
-.save-btn{width:100%;background:var(--yellow);color:#0a0b1f;font-weight:800;font-size:15px;padding:14px;border-radius:14px}
 .wamt{position:relative}
 .wamt input{width:100%;background:#0a0d22;border:2px solid transparent;border-radius:16px;padding:16px 46px 16px 18px;color:#fff;font:800 28px var(--display);outline:none}
 .wamt input:focus{border-color:var(--yellow)}
@@ -413,10 +412,8 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
 (() => {
   const tg = window.Telegram && window.Telegram.WebApp;
   const app = document.getElementById('app');
-  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', phone: '', comment: '' }, w: { amount: 200, ua: false, email: '', phone: '', comment: '', how: false } };
+  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' }, w: { amount: 200, ua: false, email: '', comment: '', how: false } };
   const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,20}$/;
-  const PHONE_RE = /^\+?[0-9][0-9 ()\-]{5,28}$/;
-  const phoneOk = v => { v = String(v || '').trim(); if (!v) return true; const d = v.replace(/\D/g, ''); return PHONE_RE.test(v) && d.length >= 7 && d.length <= 15; };
   let catalog = null;
   let cart = [], favs = [], orders = [];
   const MAX_LINES = 6, MAX_QTY = 9;
@@ -853,42 +850,27 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   const uaFee = () => (catalog.ua_account_fee != null ? catalog.ua_account_fee : 80);
   const ckTotal = () => cartTotal() + (state.ck.ua ? uaFee() : 0);
 
-  function contactsHtml(p, st) {
-    if (!canSend()) {
-      return st.ua ? '' : '<p class="tiny" style="margin:0 6px">После отправки заявки бот попросит в чате написать email аккаунта PlayStation и телефон. Пароль присылать не нужно.</p>';
-    }
-    return `<div class="ck"><h3>Контакты</h3>
-      ${st.ua
-        ? '<p class="tiny" style="margin:0">Аккаунт создадим за вас. Данные для входа менеджер пришлёт в чате.</p>'
-        : `<label class="field">Email аккаунта PlayStation *
-            <input id="${p}Email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(st.email)}">
-          </label>
-          <p class="tiny" style="margin:0">Пароль здесь вводить не нужно.</p>`}
-      <label class="field">Телефон · необязательно
-        <input id="${p}Phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" value="${esc(st.phone || '')}">
-      </label>
-      <p class="tiny" style="margin:0">Отправляя заявку, вы соглашаетесь на обработку email и телефона для выполнения заказа.</p></div>`;
-  }
-
-  function saveContacts() {
-    const e = (document.getElementById('pfEmail').value || '').trim(), p = (document.getElementById('pfPhone').value || '').trim();
-    if (e && !EMAIL_RE.test(e)) return toast('Проверьте email');
-    if (!phoneOk(p)) return toast('Проверьте номер телефона');
-    state.ck.email = state.w.email = e; state.ck.phone = state.w.phone = p;
-    store.set('ps_email', e); store.set('ps_phone', p);
-    toast('Сохранено');
-  }
-
   function renderCheckout() {
     if (!cart.length) { state.view = 'cart'; return renderCart(); }
     const ck = state.ck, send = canSend();
     const rows = cart.map(i => {
       return `<div class="ck-row"><span>${esc(lineTitle(i))} · ${esc(lineShort(i))}${i.q > 1 ? ' × ' + i.q : ''}</span><span>${money(priceOf(i) * i.q)}</span></div>`;
     }).join('');
-    const feeRow = ck.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    const feeRow = ck.ua ? `<div class="ck-row"><span>Новый аккаунт</span><span>${money(uaFee())}</span></div>` : '';
     const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
-    const account = contactsHtml('ck', ck);
+    let account;
+    if (ck.ua) {
+      account = '<p class="tiny" style="margin:0 6px">Аккаунт создадим за вас. Данные для входа менеджер пришлёт в чате.</p>';
+    } else if (send) {
+      account = `<div class="ck"><h3>Аккаунт</h3>
+        <label class="field">Email аккаунта PlayStation *
+          <input id="ckEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(ck.email)}">
+        </label>
+        <p class="tiny" style="margin:0">Пароль здесь вводить не нужно.</p></div>`;
+    } else {
+      account = '<p class="tiny" style="margin:0 6px">Email аккаунта менеджер уточнит в чате. Чтобы указать его здесь, откройте магазин кнопкой «Открыть магазин» под полем ввода в чате с ботом.</p>';
+    }
     const comment = send ? `<div class="ck"><label class="field">Комментарий для менеджера · необязательно
         <textarea id="ckComment" rows="3" maxlength="300">${esc(ck.comment)}</textarea></label></div>` : '';
 
@@ -897,7 +879,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       <main class="page">
         <div class="ck"><h3>Состав заказа</h3>${rows}${feeRow}
           <div class="ck-total"><span>Итого</span><b>${money(ckTotal())}</b></div></div>
-        <button class="chk ${ck.ua ? 'on' : ''}" data-ua><span class="box">${tick}</span><span>Нет аккаунта — создать украинский: ${money(uaFee())}</span></button>
+        <button class="chk ${ck.ua ? 'on' : ''}" data-ua><span class="box">${tick}</span><span>Нет аккаунта — создать новый: ${money(uaFee())}</span></button>
         ${account}
         ${comment}
         <button class="cta" data-send style="--c:var(--yellow)">
@@ -945,16 +927,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
         <div class="wcard"><div><small>Пополнение кошелька PSN</small><b>1 ₴ = ${esc(rateStr(WCFG().rate))} ${esc(catalog.currency)}</b></div><span class="bn-go" data-wallet>Пополнить →</span></div>
       </section>
       <main class="page">
-        <div class="ck"><h3>Мои контакты</h3>
-          <label class="field">Email аккаунта PlayStation
-            <input id="pfEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(state.ck.email)}">
-          </label>
-          <label class="field">Телефон
-            <input id="pfPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" value="${esc(state.ck.phone || '')}">
-          </label>
-          <button class="save-btn" data-pfsave>Сохранить</button>
-          <p class="tiny" style="margin:0">Данные хранятся только на вашем устройстве.${canSend() ? ' Они подставляются при оформлении заказа.' : ' В этом режиме магазин не может передать их боту, поэтому после заявки бот спросит email и телефон в чате.'}</p>
-        </div>
         <div class="menu">
           ${row('data-tab="fav"', 'heart', 'Избранное', nf ? nf + ' ' + plural(nf, 'товар', 'товара', 'товаров') : '')}
           ${row('data-tab="cart"', 'cart', 'Корзина', nc ? nc + ' ' + plural(nc, 'товар', 'товара', 'товаров') : '')}
@@ -1056,7 +1028,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
 
   function walletSummaryHtml() {
     const c = WCFG(), ok = wValid(), a = wAmount();
-    const feeRow = state.w.ua ? `<div class="ck-row"><span>Новый украинский аккаунт</span><span>${money(uaFee())}</span></div>` : '';
+    const feeRow = state.w.ua ? `<div class="ck-row"><span>Новый аккаунт</span><span>${money(uaFee())}</span></div>` : '';
     return `<h3>Ваш заказ</h3>
       <div class="ck-row"><span>На кошелёк PSN</span><span>${a ? uah(a) : '—'}</span></div>
       <div class="ck-row"><span>Курс</span><span>${rateStr(c.rate)} ${esc(catalog.currency)}/₴</span></div>
@@ -1078,7 +1050,18 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     const w = state.w, c = WCFG(), send = canSend();
     const tick = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     const pre = c.presets.map(v => `<button class="wp ${v === wAmount() ? 'on' : ''}" data-wpre="${v}">${uah(v)}</button>`).join('');
-    const account = contactsHtml('w', w);
+    let account;
+    if (w.ua) {
+      account = '<p class="tiny" style="margin:0 6px">Аккаунт создадим за вас. Данные для входа менеджер пришлёт в чате.</p>';
+    } else if (send) {
+      account = `<div class="ck"><h3>Аккаунт</h3>
+        <label class="field">Email аккаунта PlayStation *
+          <input id="wEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" value="${esc(w.email)}">
+        </label>
+        <p class="tiny" style="margin:0">Пароль и коды входа здесь вводить не нужно.</p></div>`;
+    } else {
+      account = '<p class="tiny" style="margin:0 6px">Email аккаунта менеджер уточнит в чате. Чтобы указать его здесь, откройте магазин кнопкой «Открыть магазин» под полем ввода в чате с ботом.</p>';
+    }
     const comment = send ? `<div class="ck"><label class="field">Комментарий для менеджера · необязательно
         <textarea id="wComment" rows="3" maxlength="300">${esc(w.comment)}</textarea></label></div>` : '';
     const steps = (catalog.wallet_steps || []).map(s => `<li>${esc(s)}</li>`).join('');
@@ -1100,7 +1083,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
           <div class="wpre">${pre}</div>
           <p class="tiny" style="margin:0">Минимум: ${uah(c.min)}</p>
         </div>
-        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — украинский аккаунт: ${money(uaFee())}</span></button>
+        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — создать аккаунт: ${money(uaFee())}</span></button>
         ${account}
         ${comment}
         <button class="how ${w.how ? 'on' : ''}" data-whow>Как это работает<span>›</span></button>
@@ -1127,21 +1110,15 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       if (el) { el.classList.add('bad'); el.focus(); }
       return toast('Укажите email аккаунта PlayStation');
     }
-    if (send && !phoneOk(w.phone)) {
-      const el = document.getElementById('wPhone');
-      if (el) { el.classList.add('bad'); el.focus(); }
-      return toast('Проверьте номер телефона');
-    }
     const amount = wAmount(), total = wTotal();
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = [{ title: 'Кошелёк PSN · ' + uah(amount), period: '', q: 1 }];
-    if (w.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
+    if (w.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total });
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
     if (email) store.set('ps_email', email);
-    if (w.phone.trim()) store.set('ps_phone', w.phone.trim());
-    const payload = { wallet: amount, ua: w.ua, email: w.ua ? '' : email, phone: w.phone.trim(), comment: w.comment.trim().slice(0, 300) };
+    const payload = { wallet: amount, ua: w.ua, email: w.ua ? '' : email, comment: w.comment.trim().slice(0, 300) };
     const url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=w_' + amount + (w.ua ? '_u' : '');
     w.ua = false; w.comment = '';
     try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
@@ -1163,11 +1140,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       if (el) { el.classList.add('bad'); el.focus(); }
       return toast('Укажите email аккаунта PlayStation');
     }
-    if (send && !phoneOk(ck.phone)) {
-      const el = document.getElementById('ckPhone');
-      if (el) { el.classList.add('bad'); el.focus(); }
-      return toast('Проверьте номер телефона');
-    }
     // Позиции кодируются как <тариф>-<срок>-<кол-во>, например ex-12m-2. Цены бот берёт из своего каталога.
     const codes = cart.map(i => i.t.slice(0, 2) + '-' + i.p + '-' + i.q);
     let url = null;
@@ -1177,13 +1149,12 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     }
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = cart.map(i => ({ title: lineTitle(i), period: gameOf(i.t) ? '' : lineShort(i), q: i.q }));
-    if (ck.ua) items.push({ title: 'Украинский аккаунт', period: '', q: 1 });
+    if (ck.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total: ckTotal() });
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
     if (email) store.set('ps_email', email);
-    if (ck.phone.trim()) store.set('ps_phone', ck.phone.trim());
-    const payload = { items: codes, ua: ck.ua, email: ck.ua ? '' : email, phone: ck.phone.trim(), comment: ck.comment.trim().slice(0, 300) };
+    const payload = { items: codes, ua: ck.ua, email: ck.ua ? '' : email, comment: ck.comment.trim().slice(0, 300) };
     cart = [];
     ck.ua = false; ck.comment = '';
     saveCart();
@@ -1201,8 +1172,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   app.addEventListener('input', e => {
     if (e.target.id === 'ckEmail') { state.ck.email = e.target.value; e.target.classList.remove('bad'); }
     else if (e.target.id === 'ckComment') state.ck.comment = e.target.value;
-    else if (e.target.id === 'ckPhone') { state.ck.phone = e.target.value; e.target.classList.remove('bad'); }
-    else if (e.target.id === 'wPhone') { state.w.phone = e.target.value; e.target.classList.remove('bad'); }
     else if (e.target.id === 'wAmount') {
       const v = e.target.value.replace(/\D/g, '').slice(0, 7);
       if (v !== e.target.value) e.target.value = v;
@@ -1218,11 +1187,10 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-view],[data-menu],[data-pfsave],[data-wpre],[data-wua],[data-whow],[data-wsend]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-view],[data-menu],[data-wpre],[data-wua],[data-whow],[data-wsend]');
     if (!el) return;
     const d = el.dataset;
     if ('menu' in d) { haptic(); openMenu(); }
-    else if ('pfsave' in d) saveContacts();
     else if (d.tab) { haptic(); go(d.tab); }
     else if (d.tier) { haptic(); go('tier', d.tier); }
     else if (d.game) { haptic(); go('game', d.game); }
@@ -1287,7 +1255,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       favs = store.get('ps_fav', []).filter(id => itemOf(id));
       orders = store.get('ps_orders', []);
       state.ck.email = store.get('ps_email', '') || ''; state.w.email = state.ck.email;
-  state.ck.phone = store.get('ps_phone', '') || ''; state.w.phone = state.ck.phone;
       render();
     } catch (e) {
       app.innerHTML = '<div class="err">Не удалось загрузить каталог.<br>Попробуйте открыть магазин ещё раз.</div>';
