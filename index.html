@@ -416,7 +416,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
 (() => {
   const tg = window.Telegram && window.Telegram.WebApp;
   const app = document.getElementById('app');
-  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' }, w: { amount: 200, ua: false, email: '', comment: '', how: false }, rv: { stars: 5, text: '', sent: false } };
+  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '', save: true, how: false }, w: { amount: 200, ua: false, email: '', comment: '', how: false }, rv: { stars: 5, text: '', sent: false } };
   const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,20}$/;
   let catalog = null;
   let cart = [], favs = [], orders = [];
@@ -847,9 +847,41 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       </main>`;
   }
 
-  function canSend() {
-    const kb = new URLSearchParams(location.search).get('kb') === '1';
-    return kb && !!tg && typeof tg.sendData === 'function';
+  const kbSend = () => new URLSearchParams(location.search).get('kb') === '1' && !!tg && typeof tg.sendData === 'function';
+  const apiUrl = () => (catalog && catalog.api && tg && tg.initData) ? catalog.api : '';
+  // Поля email и комментария показываем, если заявку есть чем доставить боту: HTTP-сервер или кнопка под полем ввода
+  function canSend() { return !!apiUrl() || kbSend(); }
+  let busy = false;
+  // Отправка заявки боту. Возвращает 'api', 'kb' или false (тогда причина уже показана в тосте)
+  async function deliver(payload) {
+    if (busy) return false;
+    busy = true;
+    const btns = document.querySelectorAll('.cta');
+    btns.forEach(b => { b.style.opacity = '.6'; });
+    try {
+      const url = apiUrl();
+      if (url) {
+        try {
+          const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg.initData, payload }) });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.ok) return 'api';
+          if (!kbSend()) { toast(j.error || 'Не удалось отправить заявку. Попробуйте ещё раз'); return false; }
+        } catch (e) {
+          if (!kbSend()) { toast('Нет связи с магазином. Проверьте интернет и попробуйте ещё раз'); return false; }
+        }
+      }
+      if (kbSend()) { tg.sendData(JSON.stringify(payload)); return 'kb'; }
+      return false;
+    } finally {
+      busy = false;
+      btns.forEach(b => { b.style.opacity = ''; });
+    }
+  }
+  // После успешной отправки через сервер окно закрываем сами (как раньше делал sendData)
+  function doneViaApi() {
+    toast('✅ Заявка отправлена. Подтверждение придёт в чат с ботом');
+    go('profile');
+    setTimeout(() => { try { tg.close(); } catch (e) {} }, 1400);
   }
   const uaFee = () => (catalog.ua_account_fee != null ? catalog.ua_account_fee : 80);
   const ckTotal = () => cartTotal() + (state.ck.ua ? uaFee() : 0);
@@ -876,20 +908,28 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       account = '<p class="tiny" style="margin:0 6px">Email аккаунта менеджер уточнит в чате. Чтобы указать его здесь, откройте магазин кнопкой «Открыть магазин» под полем ввода в чате с ботом.</p>';
     }
     const comment = send ? `<div class="ck"><label class="field">Комментарий для менеджера · необязательно
-        <textarea id="ckComment" rows="3" maxlength="300">${esc(ck.comment)}</textarea></label></div>` : '';
+        <textarea id="ckComment" rows="3" maxlength="300" placeholder="Например: нужный профиль или пожелания к заказу">${esc(ck.comment)}</textarea></label></div>` : '';
+    const save = send && !ck.ua
+      ? `<button class="chk ${ck.save ? 'on' : ''}" data-cksave><span class="box">${tick}</span><span>Сохранить аккаунт в профиле</span></button>` : '';
+    const steps = (catalog.order_steps || []).map(x => `<li>${esc(x)}</li>`).join('');
 
     app.innerHTML = `
       <section class="hero hero-mini">${topbar('Оформление заказа', { backAttr: 'data-ckback' })}<h1>Оформление заказа</h1></section>
       <main class="page">
-        <div class="ck"><h3>Состав заказа</h3>${rows}${feeRow}
-          <div class="ck-total"><span>Итого</span><b>${money(ckTotal())}</b></div></div>
         <button class="chk ${ck.ua ? 'on' : ''}" data-ua><span class="box">${tick}</span><span>Нет аккаунта — создать новый: ${money(uaFee())}</span></button>
         ${account}
+        ${save}
         ${comment}
+        ${steps ? `<button class="how ${ck.how ? 'on' : ''}" data-ckhow>Как это работает<span>›</span></button>
+        ${ck.how ? `<ol class="steps">${steps}</ol>` : ''}` : ''}
+        <div class="ck"><h3>Ваш заказ</h3>${rows}${feeRow}
+          <div class="ck-total"><span>К оплате</span><b>${money(ckTotal())}</b></div></div>
         <button class="cta" data-send style="--c:var(--yellow)">
           <div><b>Отправить заявку</b><small>К оплате ${money(ckTotal())} · оплату согласует менеджер</small></div>
           <span class="go">Готово →</span>
         </button>
+        ${reviewsHtml()}
+        ${reviewFormHtml()}
       </main>`;
   }
 
@@ -934,6 +974,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
         <div class="menu">
           ${row('data-tab="fav"', 'heart', 'Избранное', nf ? nf + ' ' + plural(nf, 'товар', 'товара', 'товаров') : '')}
           ${row('data-tab="cart"', 'cart', 'Корзина', nc ? nc + ' ' + plural(nc, 'товар', 'товара', 'товаров') : '')}
+          ${store.get('ps_email', '') ? row('data-forget', 'info', 'Аккаунт PSN', esc(store.get('ps_email', '')) + ' · убрать') : ''}
           ${row('data-view="history"', 'clock', 'История заявок', no ? String(no) : '')}
           ${catalog.contact ? row('data-contact', 'help', 'Поддержка', '@' + esc(catalog.contact)) : ''}
           ${row('data-view="about"', 'info', 'О магазине', '')}
@@ -1069,12 +1110,6 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     const comment = send ? `<div class="ck"><label class="field">Комментарий для менеджера · необязательно
         <textarea id="wComment" rows="3" maxlength="300">${esc(w.comment)}</textarea></label></div>` : '';
     const steps = (catalog.wallet_steps || []).map(s => `<li>${esc(s)}</li>`).join('');
-    const reviews = (catalog.reviews || []).length
-      ? `<div class="sec">Отзывы</div>` + catalog.reviews.map(r => `<div class="rev">
-          ${r.name ? `<b>${esc(r.name)}${r.date ? ` <small>· ${esc(r.date)}</small>` : ''}</b>` : ''}
-          ${r.text ? `<p>${esc(r.text)}</p>` : ''}
-          ${r.image ? `<img src="${esc(r.image)}" alt="Отзыв" loading="lazy">` : ''}
-        </div>`).join('') : '';
     app.innerHTML = `
       <section class="hero hero-wallet">
         ${topbar('Пополнение кошелька')}
@@ -1097,10 +1132,20 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
           <div><b>Отправить заявку</b><small id="wCtaSub"></small></div>
           <span class="go">Готово →</span>
         </button>
-        ${reviews}
+        ${reviewsHtml()}
         ${reviewFormHtml()}
       </main>`;
     updateWalletSummary();
+  }
+
+  function reviewsHtml() {
+    const list = catalog.reviews || [];
+    const body = list.length ? list.map(r => `<div class="rev">
+        ${r.name ? `<b>${esc(r.name)}${r.date ? ` <small>· ${esc(r.date)}</small>` : ''}</b>` : ''}
+        ${r.text ? `<p>${esc(r.text)}</p>` : ''}
+        ${r.image ? `<img src="${esc(r.image)}" alt="Отзыв" loading="lazy">` : ''}
+      </div>`).join('') : '<div class="rev"><p>Отзывов пока нет.</p></div>';
+    return `<div class="sec">Отзывы</div>${body}`;
   }
 
   function reviewFormHtml() {
@@ -1115,15 +1160,16 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       <button class="cta" data-rvsend style="--c:#22c55e;position:static;transform:none;width:100%;margin:10px 0 0">
         <div><b>Отправить отзыв</b></div><span class="go">→</span></button></div>`;
   }
-  function submitReview() {
-    const rv = state.rv, send = canSend();
-    if (!send) return toast('Откройте магазин кнопкой под полем ввода');
+  async function submitReview() {
+    const rv = state.rv;
+    if (!canSend()) return toast('Откройте магазин кнопкой под полем ввода');
     if (!rv.text.trim()) return toast('Напишите текст отзыва');
+    const how = await deliver({ review: { stars: rv.stars, text: rv.text.trim().slice(0, 500) } });
+    if (!how) return;
     state.rv.sent = true;
-    tg.sendData(JSON.stringify({ review: { stars: rv.stars, text: rv.text.trim().slice(0, 500) } }));
     render();
   }
-  function submitWallet() {
+  async function submitWallet() {
     const w = state.w, send = canSend(), email = w.email.trim();
     if (!wValid()) {
       const el = document.getElementById('wAmount');
@@ -1136,6 +1182,9 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       return toast('Укажите email аккаунта PlayStation');
     }
     const amount = wAmount(), total = wTotal();
+    const payload = { wallet: amount, ua: w.ua, email: w.ua ? '' : email, comment: w.comment.trim().slice(0, 300) };
+    let via = null;
+    if (send) { via = await deliver(payload); if (!via) return; }
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = [{ title: 'Кошелёк PSN · ' + uah(amount), period: '', q: 1 }];
     if (w.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
@@ -1143,11 +1192,11 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
     if (email) store.set('ps_email', email);
-    const payload = { wallet: amount, ua: w.ua, email: w.ua ? '' : email, comment: w.comment.trim().slice(0, 300) };
     const url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=w_' + amount + (w.ua ? '_u' : '');
     w.ua = false; w.comment = '';
     try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    if (send) { tg.sendData(JSON.stringify(payload)); return; }
+    if (via === 'kb') return;
+    if (via === 'api') return doneViaApi();
     if (tg && tg.openTelegramLink) {
       tg.openTelegramLink(url);
       setTimeout(() => { try { tg.close(); } catch (e) {} }, 300);
@@ -1156,7 +1205,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   }
 
   /* ---------- sending the order ---------- */
-  function submitOrder() {
+  async function submitOrder() {
     if (!cart.length) return;
     const ck = state.ck, send = canSend();
     const email = ck.email.trim();
@@ -1172,19 +1221,22 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       url = 'https://t.me/' + (catalog.bot || 'psstore_Arsenyaga_bot') + '?start=c_' + codes.join('_') + (ck.ua ? '_u' : '');
       if (url.split('start=')[1].length > 64) return toast('В корзине слишком много позиций. Оформите часть заказа отдельно');
     }
+    const payload = { items: codes, ua: ck.ua, email: ck.ua ? '' : email, comment: ck.comment.trim().slice(0, 300) };
+    let via = null;
+    if (send) { via = await deliver(payload); if (!via) return; }   // при ошибке корзина остаётся как была
     const d = new Date(), z = n => String(n).padStart(2, '0');
     const items = cart.map(i => ({ title: lineTitle(i), period: gameOf(i.t) ? '' : lineShort(i), q: i.q }));
     if (ck.ua) items.push({ title: 'Новый аккаунт', period: '', q: 1 });
     orders.unshift({ date: z(d.getDate()) + '.' + z(d.getMonth() + 1) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes()), items, total: ckTotal() });
     orders = orders.slice(0, 10);
     store.set('ps_orders', orders);
-    if (email) store.set('ps_email', email);
-    const payload = { items: codes, ua: ck.ua, email: ck.ua ? '' : email, comment: ck.comment.trim().slice(0, 300) };
+    if (send && !ck.ua) store.set('ps_email', ck.save ? email : '');
     cart = [];
     ck.ua = false; ck.comment = '';
     saveCart();
     try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred('success'); } catch (e) {}
-    if (send) { tg.sendData(JSON.stringify(payload)); return; }   // бот получает заявку, окно закрывается
+    if (via === 'kb') return;   // бот получает заявку, окно закрывается
+    if (via === 'api') return doneViaApi();
     if (tg && tg.openTelegramLink) {
       tg.openTelegramLink(url);
       // Магазин закрываем сами, иначе на части телефонов он остаётся открытым и кажется, что ничего не произошло
@@ -1213,7 +1265,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-game],[data-wallet],[data-view],[data-menu],[data-wpre],[data-wua],[data-whow],[data-wsend]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-cksave],[data-ckhow],[data-forget],[data-game],[data-wallet],[data-view],[data-menu],[data-wpre],[data-wua],[data-whow],[data-wsend]');
     if (!el) return;
     const d = el.dataset;
     if ('menu' in d) { haptic(); openMenu(); }
@@ -1244,6 +1296,9 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     else if ('wua' in d) { state.w.ua = !state.w.ua; haptic(); render(); }
     else if ('whow' in d) { state.w.how = !state.w.how; render(); }
     else if ('wsend' in d) submitWallet();
+    else if ('cksave' in d) { state.ck.save = !state.ck.save; haptic(); render(); }
+    else if ('ckhow' in d) { state.ck.how = !state.ck.how; render(); }
+    else if ('forget' in d) { store.set('ps_email', ''); state.ck.email = ''; state.w.email = ''; toast('Аккаунт удалён из профиля'); render(); }
     else if ('ckback' in d) go('cart');
     else if ('contact' in d) {
       const url = 'https://t.me/' + catalog.contact;
