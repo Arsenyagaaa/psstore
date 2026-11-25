@@ -267,6 +267,10 @@ h1 em{font-style:normal;color:var(--yellow)}
 .rev small{color:var(--muted);font-weight:700;font-size:12px}
 .rev p{font-size:14px;line-height:1.45;font-weight:600}
 .rev img{width:100%;border-radius:14px;display:block}
+.rev-stars{display:flex;gap:6px;font-size:24px;cursor:pointer;user-select:none}
+.rev-stars span{color:#3a3a5a;transition:color .15s}.rev-stars span.on{color:#ffd24d}
+.rev-form{display:grid;gap:12px}.rev-form h3{font-size:16px;font-weight:800;margin:0}
+.rev-sent{text-align:center;padding:16px 0;font-weight:700;color:var(--yellow)}
 
 /* ===== LUMO redesign ===== */
 :root{--display:'Manrope',system-ui,sans-serif;--card:#15163a;--edge:rgba(150,130,255,.2)}
@@ -412,7 +416,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
 (() => {
   const tg = window.Telegram && window.Telegram.WebApp;
   const app = document.getElementById('app');
-  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' }, w: { amount: 200, ua: false, email: '', comment: '', how: false } };
+  const state = { view: 'home', tab: 'home', car: 0, tierId: null, periodId: null, ck: { ua: false, email: '', comment: '' }, w: { amount: 200, ua: false, email: '', comment: '', how: false }, rv: { stars: 5, text: '', sent: false } };
   const EMAIL_RE = /^[^@\s]{1,64}@[^@\s]{1,190}\.[^@\s]{2,20}$/;
   let catalog = null;
   let cart = [], favs = [], orders = [];
@@ -1083,7 +1087,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
           <div class="wpre">${pre}</div>
           <p class="tiny" style="margin:0">Минимум: ${uah(c.min)}</p>
         </div>
-        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>У меня нет аккаунта — создать аккаунт: ${money(uaFee())}</span></button>
+        <button class="chk ${w.ua ? 'on' : ''}" data-wua><span class="box">${tick}</span><span>Нет аккаунта — создать новый: ${money(uaFee())}</span></button>
         ${account}
         ${comment}
         <button class="how ${w.how ? 'on' : ''}" data-whow>Как это работает<span>›</span></button>
@@ -1094,10 +1098,31 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
           <span class="go">Готово →</span>
         </button>
         ${reviews}
+        ${reviewFormHtml()}
       </main>`;
     updateWalletSummary();
   }
 
+  function reviewFormHtml() {
+    const rv = state.rv, send = canSend();
+    if (!send) return '';
+    if (rv.sent) return `<div class="rev-sent">✅ Отзыв отправлен и ждёт проверки.</div>`;
+    const stars = [1,2,3,4,5].map(n => `<span class="${n <= rv.stars ? 'on' : ''}" data-rvstar="${n}">★</span>`).join('');
+    return `<div class="ck"><h3 style="font-size:16px;font-weight:800;margin:0 0 8px">Оставить отзыв</h3>
+      <p style="font-size:14px;color:var(--muted);font-weight:600;margin:0 0 10px">Расскажите коротко, как прошла покупка.</p>
+      <div class="rev-stars" id="rvStars">${stars}</div>
+      <label class="field" style="margin-top:10px"><textarea id="rvText" rows="4" maxlength="500" placeholder="Напишите отзыв...">${esc(rv.text)}</textarea></label>
+      <button class="cta" data-rvsend style="--c:#22c55e;position:static;transform:none;width:100%;margin:10px 0 0">
+        <div><b>Отправить отзыв</b></div><span class="go">→</span></button></div>`;
+  }
+  function submitReview() {
+    const rv = state.rv, send = canSend();
+    if (!send) return toast('Откройте магазин кнопкой под полем ввода');
+    if (!rv.text.trim()) return toast('Напишите текст отзыва');
+    state.rv.sent = true;
+    tg.sendData(JSON.stringify({ review: { stars: rv.stars, text: rv.text.trim().slice(0, 500) } }));
+    render();
+  }
   function submitWallet() {
     const w = state.w, send = canSend(), email = w.email.trim();
     if (!wValid()) {
@@ -1178,6 +1203,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
       state.w.amount = v; e.target.classList.remove('bad'); updateWalletSummary();
     }
     else if (e.target.id === 'wEmail') { state.w.email = e.target.value; e.target.classList.remove('bad'); }
+    else if (e.target.id === 'rvText') state.rv.text = e.target.value;
     else if (e.target.id === 'wComment') state.w.comment = e.target.value;
   });
 
@@ -1213,6 +1239,8 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     else if ('wallet' in d) { haptic(); go('wallet'); }
     else if (d.view) { haptic(); go(d.view); }
     else if (d.wpre) { haptic(); state.w.amount = d.wpre; document.getElementById('wAmount').value = d.wpre; updateWalletSummary(); }
+    else if (d.rvstar) { state.rv.stars = +d.rvstar; document.querySelectorAll('#rvStars span').forEach(x => x.classList.toggle('on', +x.dataset.rvstar <= state.rv.stars)); haptic(); }
+    else if ('rvsend' in d) submitReview();
     else if ('wua' in d) { state.w.ua = !state.w.ua; haptic(); render(); }
     else if ('whow' in d) { state.w.how = !state.w.how; render(); }
     else if ('wsend' in d) submitWallet();
