@@ -1168,6 +1168,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
     if (!how) return;
     state.rv.sent = true;
     render();
+    toast('Спасибо! Отзыв отправлен на проверку');
   }
   async function submitWallet() {
     const w = state.w, send = canSend(), email = w.email.trim();
@@ -1265,7 +1266,7 @@ h1,.sec-h,.tier-name,.line-name,.cta b,.avatar{letter-spacing:-.01em}
   });
 
   app.addEventListener('click', e => {
-    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-cksave],[data-ckhow],[data-forget],[data-game],[data-wallet],[data-view],[data-menu],[data-wpre],[data-wua],[data-whow],[data-wsend]');
+    const el = e.target.closest('[data-tier],[data-period],[data-add],[data-fav],[data-back],[data-contact],[data-tab],[data-inc],[data-dec],[data-rm],[data-clear],[data-checkout],[data-ua],[data-send],[data-ckback],[data-cksave],[data-ckhow],[data-forget],[data-game],[data-wallet],[data-view],[data-menu],[data-wpre],[data-wua],[data-whow],[data-wsend],[data-rvstar],[data-rvsend]');
     if (!el) return;
     const d = el.dataset;
     if ('menu' in d) { haptic(); openMenu(); }
