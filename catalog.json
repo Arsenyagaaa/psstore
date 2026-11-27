@@ -146,7 +146,7 @@
     },
     {
       "id": "Grand Theft Auto VI: Ultimate Edition",
-      "title": "GTA 6",
+      "title": "Grand Theft Auto VI: Ultimate Edition",
       "price": 11290,
       "color": "#ff5aa8",
       "color2": "#2a0a4a",
@@ -165,7 +165,7 @@
         "Главная новинка этой осени: вышла 19 ноября 2026",
         "Только для PS5, версии для PS4 нет"
       ],
-      "images": [],
+      "images": [ ],
       "cover": "webapp/img/gta6.jpg"
     }
   ],
