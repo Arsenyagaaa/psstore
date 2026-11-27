@@ -145,7 +145,7 @@
       "cover": "webapp/img/fifa27.jpg"
     },
     {
-      "id": "gta6",
+      "id": "Grand Theft Auto VI: Ultimate Edition",
       "title": "GTA 6",
       "price": 11500,
       "color": "#ff5aa8",
@@ -166,7 +166,7 @@
         "Только для PS5, версии для PS4 нет"
       ],
       "images": [],
-      "cover": "img/gta6.jpg"
+      "cover": "webapp/img/gta6.jpg"
     }
   ],
   "uah_rate": 3.5,
